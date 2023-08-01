@@ -7,10 +7,10 @@ import { App } from './App';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <QueryClientProvider client={queryClient}>
-    <ReactQueryDevtools initialIsOpen={false} position="bottom-left" />
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </QueryClientProvider>,
-)
+	<QueryClientProvider client={queryClient}>
+		<ReactQueryDevtools initialIsOpen={false} position="bottom-left" />
+		<AuthProvider>
+			<App />
+		</AuthProvider>
+	</QueryClientProvider>,
+);

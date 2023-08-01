@@ -1,5 +1,14 @@
+import { useAuth } from '../../contexts/AuthContext/useAuth';
+
 export function HomePage() {
-  return (
-    <h1>home</h1>
-  );
+	const { signout } = useAuth();
+
+	return (
+		<>
+			<h1>home</h1>
+			<button onClick={signout}>
+      deslogar
+			</button>
+		</>
+	);
 }

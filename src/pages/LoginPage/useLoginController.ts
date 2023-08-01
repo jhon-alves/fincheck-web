@@ -5,30 +5,36 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { authServices } from '../../services';
 import { SigninParams } from '../../services/auth/types';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../contexts/AuthContext/useAuth';
 
 const schema = z.object({
-  email: z.string().nonempty('E-mail é obrigatório!').email('Infome um e-mail válido!'),
-  password: z.string().nonempty('Senha é obrigatória!').min(8, 'A senha deve conter pelo menos 8 dígitos!'),
+	email: z.string().nonempty('E-mail é obrigatório!').email('Infome um e-mail válido!'),
+	password: z.string().nonempty('Senha é obrigatória!').min(8, 'A senha deve conter pelo menos 8 dígitos!'),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export function useLoginController() {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema)
-  });
+	const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+		resolver: zodResolver(schema)
+	});
 
-  const { mutateAsync, isLoading } = useMutation({
-    mutationFn: async (data: SigninParams) => await authServices.signin(data),
-    onError: () => toast.error('Credenciais inválidas!')
-  });
+	const { mutateAsync, isLoading } = useMutation({
+		mutationFn: async (data: SigninParams) => await authServices.signin(data),
+		onError: () => toast.error('Credenciais inválidas!')
+	});
 
-  const handleLoginSubmit = handleSubmit(async(data) => await mutateAsync(data));
+	const { signin } = useAuth();
 
-  return {
-    errors,
-    isLoading,
-    register,
-    handleLoginSubmit
-  }
+	const handleLoginSubmit = handleSubmit(async(data) => {
+		const { accessToken } = await mutateAsync(data);
+		signin(accessToken);
+	});
+
+	return {
+		errors,
+		isLoading,
+		register,
+		handleLoginSubmit
+	};
 }
