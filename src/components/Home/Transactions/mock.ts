@@ -1,0 +1,98 @@
+export const transactionsMock = [
+	{
+		type: 'income',
+		name: 'Salário NF',
+		date: '04/06/2023',
+		value: 5500,
+	},
+	{
+		type: 'income',
+		name: 'Salário FC',
+		date: '04/06/2023',
+		value: 3000,
+	},
+	{
+		type: 'expense',
+		name: 'IFOOD - MC Donalds',
+		date: '04/06/2023',
+		value: 250,
+	},
+	{
+		type: 'expense',
+		name: 'IFOOD - MC Donalds',
+		date: '04/06/2023',
+		value: 250,
+	},
+	{
+		type: 'expense',
+		name: 'IFOOD - MC Donalds',
+		date: '04/06/2023',
+		value: 250,
+	},
+	{
+		type: 'expense',
+		name: 'IFOOD - MC Donalds',
+		date: '04/06/2023',
+		value: 250,
+	},
+	{
+		type: 'expense',
+		name: 'IFOOD - MC Donalds',
+		date: '04/06/2023',
+		value: 250,
+	},
+	{
+		type: 'expense',
+		name: 'IFOOD - MC Donalds',
+		date: '04/06/2023',
+		value: 250,
+	},
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+	// {
+	// 	type: 'expense',
+	// 	name: 'IFOOD - MC Donalds',
+	// 	date: '04/06/2023',
+	// 	value: 250,
+	// },
+];

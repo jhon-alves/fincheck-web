@@ -1,5 +1,8 @@
-import { BankAccountTypeIcon } from '../Icons/BankAccountTypeIcon';
-import { formatCurrency } from '../../helpers';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { BankAccountTypeIcon } from '../../Icons/BankAccountTypeIcon';
+import { formatCurrency } from '../../../helpers';
+import { useAccountController } from './hooks/useAccountController';
 
 interface AccountCardProps {
   color: string;
@@ -9,6 +12,8 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ color, name, balance, type }: AccountCardProps) {
+	const { areValuesVisible } = useAccountController();
+
 	return (
 		<div
 			style={{ borderBottomColor: color }}
@@ -16,12 +21,16 @@ export function AccountCard({ color, name, balance, type }: AccountCardProps) {
 		>
 			<div>
 				<BankAccountTypeIcon type={type} />
-				<p className="text-gray-800 font-medium tracking-[-0.5px] mt-4">
+				<p className="text-gray-800 font-medium mt-4">
 					{name}
 				</p>
 			</div>
 			<div className="mt-6">
-				<span className="text-gray-800 font-medium tracking-[-0.5px] mt-4 block">
+				<span className={twMerge(clsx(
+					'text-gray-800 font-medium mt-4 block',
+					!areValuesVisible && 'blur-sm'
+				))}
+				>
 					{formatCurrency(balance)}
 				</span>
 				<small className="text-gray-600 text-sm">
