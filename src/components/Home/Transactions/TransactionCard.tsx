@@ -5,7 +5,7 @@ import { CategoryIcon } from '../../Icons/categories/CategoryIcon';
 import { useTransactionsController } from './hooks/useTransactionsController';
 
 interface TransactionCardProps {
-  type: 'expense' | 'income';
+  type: 'income' | 'expense';
   name: string;
   date: string;
   value: number;
