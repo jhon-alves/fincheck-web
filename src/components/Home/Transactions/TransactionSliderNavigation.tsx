@@ -1,7 +1,7 @@
 import { useSwiper } from 'swiper/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 
-export function SliderNavigation() {
+export function TransactionSliderNavigation() {
 	const swiper = useSwiper();
 
 	return (

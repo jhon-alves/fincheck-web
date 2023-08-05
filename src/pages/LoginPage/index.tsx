@@ -40,7 +40,11 @@ export function LoginPage() {
 					error={errors.password?.message}
 					{...register('password')}
 				/>
-				<Button type="submit" isLoading={isLoading}>
+				<Button
+					type="submit"
+					variant="contained"
+					isLoading={isLoading}
+				>
           Entrar
 				</Button>
 			</form>

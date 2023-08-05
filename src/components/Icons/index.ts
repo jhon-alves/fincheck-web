@@ -4,3 +4,4 @@ export * from './EyeIcon';
 export * from './FilterIcon';
 export * from './IncomeIcon';
 export * from './TransactionsIcon';
+export * from './ColorIcon';

@@ -3,7 +3,7 @@ import 'swiper/css';
 import { FilterIcon } from '../../Icons/FilterIcon';
 import { MONTHS } from '../../../constants/months';
 import { SliderMonths } from './SliderMonths';
-import { SliderNavigation } from './SliderNavigation';
+import { TransactionSliderNavigation } from './TransactionSliderNavigation';
 import { TransactionCard } from './TransactionCard';
 import { transactionsMock } from './mock';
 import { useTransactionsController } from './hooks/useTransactionsController';
@@ -11,7 +11,7 @@ import { Spinner } from '../../Spinner';
 import emptyState from '../../../assets/imgs/emptyStateTransactions.svg';
 import { TransactionDropdown } from './TransactionDropdown';
 import { CreateTransactionButton } from './CreateTransactionButton';
-import { FiltersModal } from './FiltersModal';
+import { FiltersModal } from './Filters';
 
 export function Transactions() {
 	const {
@@ -55,7 +55,7 @@ export function Transactions() {
 									spaceBetween={16}
 									slidesPerView={3}
 								>
-									<SliderNavigation />
+									<TransactionSliderNavigation />
 									{MONTHS.map((month, index) => (
 										<SwiperSlide key={month}>
 											{({ isActive }) => (

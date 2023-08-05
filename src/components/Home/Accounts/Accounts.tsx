@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { EyeIcon } from '../../Icons/EyeIcon';
 import { AccountCard } from './AccountCard';
-import { SliderNavigation } from './SliderNavigation';
+import { AccountSliderNavigation } from './AccountSliderNavigation';
 import { useAccountController } from './hooks/useAccountController';
 import { formatCurrency } from '../../../helpers';
 import { Spinner } from '../../Spinner';
@@ -19,6 +19,7 @@ export function Accounts() {
 		areValuesVisible,
 		setSliderState,
 		toogleValueVisibility,
+		handleNewAccountModalOpen
 	} = useAccountController();
 
 	return (
@@ -73,7 +74,7 @@ export function Accounts() {
 										<strong className="text-white text-lg">
                 Minhas contas
 										</strong>
-										<SliderNavigation
+										<AccountSliderNavigation
 											isBeginning={sliderState.isBeginning}
 											isEnd={sliderState.isEnd}
 										/>
@@ -118,9 +119,12 @@ export function Accounts() {
                   Minhas contas
 								</strong>
 
-								<button className="mt-4 w-full h-52 flex flex-col items-center gap-4
-                justify-center rounded-2xl border-2 border-dashed border-teal-600
-                hover:bg-teal-950/10 transition-colors">
+								<button
+									onClick={handleNewAccountModalOpen}
+									className="mt-4 w-full h-52 flex flex-col items-center gap-4
+                  justify-center rounded-2xl border-2 border-dashed border-teal-600
+                hover:bg-teal-950/10 transition-colors"
+								>
 									<div className="w-10 h-10 rounded-full border-2 border-dashed border-white
                   flex items-center justify-center">
 										<PlusIcon className="text-white w-6 h-6" />

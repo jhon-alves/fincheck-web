@@ -1,5 +1,5 @@
 export * from './Input';
-export * from './Button';
+export * from './ButtonTeste';
 export * from './Spinner';
 export * from './LaunchScreen';
 export * from './Navbar';

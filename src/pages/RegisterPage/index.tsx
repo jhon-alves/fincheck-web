@@ -45,7 +45,11 @@ export function RegisterPage() {
 					error={errors.password?.message}
 					{...register('password')}
 				/>
-				<Button type="submit" isLoading={isLoading}>
+				<Button
+					type="submit"
+					variant="contained"
+					isLoading={isLoading}
+				>
           Criar Conta
 				</Button>
 			</form>

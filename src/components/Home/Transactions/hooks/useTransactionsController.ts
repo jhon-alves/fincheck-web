@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { useHome } from '../../../../contexts/HomeContext/useHome';
 
 export function useTransactionsController() {
-	const { areValuesVisible } = useHome();
 	const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
+	const {
+		areValuesVisible,
+		handleNewAccountModalOpen,
+		openNewTransactionModal,
+		closeNewTransactionModal
+	} = useHome();
 
 	const handleIsFiltersModalOpen = () => {
 		setIsFiltersModalOpen(!isFiltersModalOpen);
@@ -15,6 +20,9 @@ export function useTransactionsController() {
 		isInitialLoading: false,
 		isLoading: false,
 		isFiltersModalOpen,
-		handleIsFiltersModalOpen
+		handleIsFiltersModalOpen,
+		handleNewAccountModalOpen,
+		openNewTransactionModal,
+		closeNewTransactionModal
 	};
 }
