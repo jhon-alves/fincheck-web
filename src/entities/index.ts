@@ -1,3 +1,3 @@
 export * from './Category';
 export * from './Transaction';
-export * from './bankAccount';
+export * from './BankAccount';

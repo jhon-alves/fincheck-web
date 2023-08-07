@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useCallback, useState } from 'react';
-import { BankAccount } from '../../entities/bankAccount';
+import { BankAccount } from '../../entities/BankAccount';
 
 interface HomeContextValue {
   // View Currency Balance
