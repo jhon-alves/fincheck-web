@@ -17,6 +17,7 @@ export function Accounts() {
 		sliderState,
 		windowWidth,
 		areValuesVisible,
+		currencyBalance,
 		setSliderState,
 		toogleValueVisibility,
 		handleNewAccountModalOpen
@@ -33,16 +34,14 @@ export function Accounts() {
 			{!isInitialLoading && (
 				<>
 					<div className="mb-4">
-						<p className="text-sm text-white">
-          Saldo Total
-						</p>
+						<p className="text-sm text-white">Saldo Total</p>
 						<div className="flex gap-3 items-center">
 							<span className={twMerge(clsx(
 								'text-2xl text-white font-medium',
 								!areValuesVisible && 'blur-md'
 							))}
 							>
-								{formatCurrency(1000)}
+								{formatCurrency(currencyBalance)}
 							</span>
 							<button
 								onClick={toogleValueVisibility}
@@ -65,52 +64,24 @@ export function Accounts() {
 											isEnd: swiper.isEnd
 										});
 									}}
-									onSwiper={(swiper) => console.log(swiper)}
 								>
 									<div
 										slot="container-start"
 										className="flex justify-between items-center mb-4"
 									>
 										<strong className="text-white text-lg">
-                Minhas contas
+                      Minhas contas
 										</strong>
 										<AccountSliderNavigation
 											isBeginning={sliderState.isBeginning}
 											isEnd={sliderState.isEnd}
 										/>
 									</div>
-									<SwiperSlide>
-										<AccountCard
-											color="purple"
-											name="Nubank"
-											balance={500}
-											type="CASH"
-										/>
-									</SwiperSlide>
-									<SwiperSlide>
-										<AccountCard
-											color="purple"
-											name="Nubank"
-											balance={500}
-											type="CASH"
-										/>
-									</SwiperSlide>
-									<SwiperSlide>
-										<AccountCard
-											color="purple"
-											name="Nubank"
-											balance={500}
-											type="CASH"
-										/>
-									</SwiperSlide>
-									<SwiperSlide>
-										<AccountCard
-											color="purple"
-											name="Nubank"
-											balance={500}
-											type="CASH"
-										/>
-									</SwiperSlide>
+									{accounts.map(account => (
+										<SwiperSlide key={account.id}>
+											<AccountCard data={account} />
+										</SwiperSlide>
+									))}
 								</Swiper>
 							</div>
 						) : (

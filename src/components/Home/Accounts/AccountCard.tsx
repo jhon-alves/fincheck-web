@@ -2,22 +2,22 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { BankAccountTypeIcon } from '../../Icons/BankAccountTypeIcon';
 import { formatCurrency } from '../../../helpers';
-import { useAccountController } from './hooks/useAccountController';
+import { useHome } from '../../../contexts/HomeContext/useHome';
+import { BankAccount } from '../../../entities/bankAccount';
 
 interface AccountCardProps {
-  color: string;
-  name: string;
-  balance: number;
-  type: 'CASH' | 'CHECKING' | 'INVESTMENT';
+  data: BankAccount;
 }
 
-export function AccountCard({ color, name, balance, type }: AccountCardProps) {
-	const { areValuesVisible } = useAccountController();
+export function AccountCard({ data }: AccountCardProps) {
+	const { color, name, currentBalance, type } = data;
+	const { areValuesVisible, openEditAccountModal } = useHome();
 
 	return (
 		<div
 			style={{ borderBottomColor: color }}
 			className="bg-white rounded-2xl p-4 border-b-[8px]"
+			onClick={() => openEditAccountModal(data)}
 		>
 			<div>
 				<BankAccountTypeIcon type={type} />
@@ -31,7 +31,7 @@ export function AccountCard({ color, name, balance, type }: AccountCardProps) {
 					!areValuesVisible && 'blur-sm'
 				))}
 				>
-					{formatCurrency(balance)}
+					{formatCurrency(currentBalance)}
 				</span>
 				<small className="text-gray-600 text-sm">
           Saldo atual

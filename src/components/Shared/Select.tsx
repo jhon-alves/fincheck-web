@@ -1,4 +1,4 @@
-import { Select as MuiSelect, FormControl, InputLabel } from '@mui/material';
+import { Select as MuiSelect, FormControl, InputLabel, FormHelperText } from '@mui/material';
 import { ReactNode } from 'react';
 import { SelectChangeEvent } from '@mui/material/Select';
 
@@ -7,11 +7,12 @@ interface SelectProps {
   value?: string;
   onChange?(e: SelectChangeEvent): void;
   children: ReactNode;
+  error?: string;
 }
 
-export function Select({ label, value, onChange, children }: SelectProps) {
+export function Select({ label, value, onChange, error, children }: SelectProps) {
 	return (
-		<FormControl fullWidth>
+		<FormControl fullWidth error={!!error}>
 			<InputLabel>{label}</InputLabel>
 			<MuiSelect
 				fullWidth
@@ -22,6 +23,9 @@ export function Select({ label, value, onChange, children }: SelectProps) {
 			>
 				{children}
 			</MuiSelect>
+			{error && (
+				<FormHelperText>{error}</FormHelperText>
+			)}
 		</FormControl>
 
 	);

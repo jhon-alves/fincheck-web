@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useWindowSize } from '../../../../hooks/useWindowSize';
 import { useHome } from '../../../../contexts/HomeContext/useHome';
+import { useAccounts } from '../../../../hooks';
 
 export function useAccountController() {
 	const windowWidth = useWindowSize();
@@ -14,6 +15,12 @@ export function useAccountController() {
 		isEnd: false
 	});
 
+	const { accounts, isFetching } = useAccounts();
+
+	const currencyBalance = useMemo(() => {
+		return accounts.reduce((total, account) => total + account.currentBalance, 0);
+	}, [accounts]);
+
 	return {
 		sliderState,
 		windowWidth,
@@ -21,7 +28,8 @@ export function useAccountController() {
 		setSliderState,
 		toogleValueVisibility,
 		handleNewAccountModalOpen,
-		isInitialLoading: false,
-		accounts: []
+		isInitialLoading: isFetching,
+		accounts,
+		currencyBalance
 	};
 }
