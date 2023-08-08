@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Input, Button } from '../../components';
+import { Button } from '@mui/material';
+import { Input } from '../../components';
 import { useRegisterController } from './useRegisterController';
 
 export function RegisterPage() {
@@ -48,7 +49,7 @@ export function RegisterPage() {
 				<Button
 					type="submit"
 					variant="contained"
-					isLoading={isLoading}
+					disabled={isLoading}
 				>
           Criar Conta
 				</Button>

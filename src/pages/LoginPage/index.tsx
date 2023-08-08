@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Input, Button } from '../../components';
+import { Button } from '@mui/material';
+import { Input } from '../../components';
 import { useLoginController } from './useLoginController';
 
 export function LoginPage() {
@@ -43,7 +44,7 @@ export function LoginPage() {
 				<Button
 					type="submit"
 					variant="contained"
-					isLoading={isLoading}
+					disabled={isLoading}
 				>
           Entrar
 				</Button>
