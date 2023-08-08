@@ -1,5 +1,5 @@
 import { api } from '../../helpers';
-import { CreateTransactionParams, TransactionsResponse, UpdateTransactionsParams } from './types';
+import { CreateTransactionParams, TransactionsFilters, TransactionsResponse, UpdateTransactionsParams } from './types';
 
 export const transactionsServices = {
 	createTransaction,
@@ -13,8 +13,10 @@ async function createTransaction(params: CreateTransactionParams) {
 	return data;
 }
 
-async function findTransactions() {
-	const { data } = await api.get<TransactionsResponse>('/transactions');
+async function findTransactions(filters: TransactionsFilters) {
+	const { data } = await api.get<TransactionsResponse>('/transactions', {
+		params: filters
+	});
 	return data;
 }
 
