@@ -11,6 +11,13 @@ export interface CreateTransactionParams {
 
 export type TransactionsResponse = Array<Transaction>;
 
+export type TransactionsFilters = {
+  month: number;
+  year: number;
+  bankAccountId?: string;
+  type?: Transaction['type'];
+}
+
 export interface UpdateTransactionsParams {
   id: string;
   bankAccountId: string;
