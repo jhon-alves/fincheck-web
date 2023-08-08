@@ -1,4 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
+import { Button } from '@mui/material';
 import { Modal } from '../../../Shared';
 import { useFiltersModal } from './useFiltersModal';
 import { twMerge } from 'tailwind-merge';
@@ -7,29 +8,16 @@ import clsx from 'clsx';
 interface FiltersModalProps {
   open: boolean;
   onClose(): void;
+  onApplyfilters(filters: { bankAccountId: string | undefined; year: number }): void;
 }
 
-const mockedAccounts = [
-	{
-		id: '123',
-		name: 'Nubank'
-	},
-	{
-		id: '456',
-		name: 'Neon'
-	},
-	{
-		id: '245',
-		name: 'Itaú'
-	},
-];
-
-export function FiltersModal({ open, onClose }: FiltersModalProps) {
+export function FiltersModal({ open, onClose, onApplyfilters }: FiltersModalProps) {
 	const {
 		selectedYear,
 		selectedBankAccount,
 		handleSelectBankAccount,
-		handleChangeYear
+		handleChangeYear,
+		accounts
 	} = useFiltersModal();
 
 	return (
@@ -38,7 +26,7 @@ export function FiltersModal({ open, onClose }: FiltersModalProps) {
 				<span className="text-lg font-medium text-gray-800">Conta</span>
 
 				<div className="space-y-2 mt-2">
-					{mockedAccounts.map(account => (
+					{accounts.map(account => (
 						<button
 							key={account.id}
 							onClick={() => handleSelectBankAccount(account.id)}
@@ -73,9 +61,16 @@ export function FiltersModal({ open, onClose }: FiltersModalProps) {
 					</button>
 				</div>
 			</div>
-			<button className="bg-teal-900 rounded-xl text-white w-full p-3">
+			<Button
+				fullWidth
+				variant="contained"
+				onClick={() => onApplyfilters({
+					bankAccountId: selectedBankAccount,
+					year: selectedYear
+				})}
+			>
         Aplicar Filtros
-			</button>
+			</Button>
 		</Modal>
 	);
 }

@@ -5,7 +5,6 @@ import { MONTHS } from '../../../constants/months';
 import { SliderMonths } from './SliderMonths';
 import { TransactionSliderNavigation } from './TransactionSliderNavigation';
 import { TransactionCard } from './TransactionCard';
-import { transactionsMock } from './mock';
 import { useTransactionsController } from './hooks/useTransactionsController';
 import { Spinner } from '../../Spinner';
 import emptyState from '../../../assets/imgs/emptyStateTransactions.svg';
@@ -19,7 +18,10 @@ export function Transactions() {
 		isLoading,
 		transactions,
 		isFiltersModalOpen,
-		handleIsFiltersModalOpen
+		handleIsFiltersModalOpen,
+		filters,
+		handleChangeFilters,
+		handleApplyFilters
 	} = useTransactionsController();
 	const hasTransactions = transactions.length > 0;
 
@@ -28,6 +30,7 @@ export function Transactions() {
 			<FiltersModal
 				open={isFiltersModalOpen}
 				onClose={handleIsFiltersModalOpen}
+				onApplyfilters={handleApplyFilters}
 			/>
 			<div className="bg-gray-200 rounded-2xl w-full h-full md:p-10 px-4 py-8 flex flex-col">
 				{isInitialLoading && (
@@ -44,7 +47,10 @@ export function Transactions() {
 									<button onClick={handleIsFiltersModalOpen}>
 										<FilterIcon />
 									</button>
-									<TransactionDropdown />
+									<TransactionDropdown
+										onSelect={handleChangeFilters('type')}
+										selectedType={filters.type}
+									/>
 								</div>
 								<CreateTransactionButton />
 							</div>
@@ -54,6 +60,10 @@ export function Transactions() {
 									centeredSlides
 									spaceBetween={16}
 									slidesPerView={3}
+									initialSlide={filters.month}
+									onSlideChange={swiper => {
+										handleChangeFilters('month')(swiper.realIndex);
+									}}
 								>
 									<TransactionSliderNavigation />
 									{MONTHS.map((month, index) => (
@@ -85,17 +95,16 @@ export function Transactions() {
 								</div>
 							)}
 
-							{(hasTransactions && !isLoading) && (
-								transactionsMock.map((item, index) => (
-									<TransactionCard
-										key={index}
-										type={item.type}
-										name={item.name}
-										date={item.date}
-										value={item.value}
-									/>
-								))
-							)}
+							{(hasTransactions && !isLoading) && transactions.map(transaction => (
+								<TransactionCard
+									key={transaction.id}
+									type={transaction.type === 'EXPENSE' ? 'expense' : 'income'}
+									category={transaction.category?.icon}
+									name={transaction.name}
+									date={transaction.date}
+									value={transaction.value}
+								/>
+							))}
 						</div>
 					</>
 				)}

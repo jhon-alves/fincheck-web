@@ -41,7 +41,6 @@ export function useTransactionModal() {
 	});
 
 	const handleNewTransaction = handleSubmit(async data => {
-		console.log(data);
 		try {
 			await mutateAsync({
 				...data,
@@ -50,7 +49,7 @@ export function useTransactionModal() {
 				date: data.date.toISOString()
 			});
 
-			queryClient.invalidateQueries({ queryKey: ['bankAccounts'] });
+			queryClient.invalidateQueries({ queryKey: ['transactions'] });
 			toast.success(
 				newTransactionType === 'EXPENSE'
 					? 'Despesa cadastrada!'
