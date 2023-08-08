@@ -7,19 +7,16 @@ import { queryClient } from './helpers';
 import { lightTheme } from './themes/lightTheme';
 import { App } from './App';
 import './index.css';
-import moment from 'moment';
-import 'moment/locale/pt-br';
+import ptBR from 'date-fns/locale/pt-BR';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-
-moment.locale('pt-br');
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<QueryClientProvider client={queryClient}>
 		<ReactQueryDevtools initialIsOpen={false} position="bottom-left" />
 		<ThemeProvider theme={lightTheme}>
-			<LocalizationProvider dateAdapter={AdapterMoment} adapterLocale='pt-br'>
+			<LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
 				<AuthProvider>
 					<App />
 				</AuthProvider>
