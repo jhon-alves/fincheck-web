@@ -19,7 +19,10 @@ export function LaunchScreen({ isLoading }: LaunchScreenProps) {
     >
       <div className="fixed top-0 left-0 w-full h-full bg-teal-900 grid place-items-center">
         <div className="flex flex-col items-center gap-4">
-          <Logo className="h-10 text-white" />
+          <div className="flex items-center justify-center gap-2">
+            <Logo className="h-10 text-white" />
+            <span className="text-white font-bold">MyWallet</span>
+          </div>
           <Spinner className="text-teal-900 fill-white" />
         </div>
       </div>
