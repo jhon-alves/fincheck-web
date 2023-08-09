@@ -1,24 +1,24 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import { LoginPage, RegisterPage, HomePage, AuthLayout } from '../pages';
 import { AuthGuard } from './AuthGuard';
+import { Login } from '../view/pages/Login';
+import { Register } from '../view/pages/Register';
+import { Dashboard } from '../view/pages/Dashboard';
+import { AuthLayout } from '../view/layouts/AuthLayout';
 
 export function Router() {
-	return (
-		<BrowserRouter>
-			<Routes>
-				{/* Public */}
-				<Route element={<AuthGuard isPrivate={false} />}>
-					<Route element={<AuthLayout />}>
-						<Route path="/login" element={<LoginPage />}/>
-						<Route path="/register" element={<RegisterPage />}/>
-					</Route>
-				</Route>
-
-				{/* Private */}
-				<Route element={<AuthGuard isPrivate />}>
-					<Route path="/" element={<HomePage />}/>
-				</Route>
-			</Routes>
-		</BrowserRouter>
-	);
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AuthGuard isPrivate={false} />}>
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+        </Route>
+        <Route element={<AuthGuard isPrivate />}>
+          <Route path="/" element={<Dashboard />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
