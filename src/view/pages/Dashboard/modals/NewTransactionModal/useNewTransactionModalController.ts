@@ -51,12 +51,8 @@ export function useNewTransactionController() {
         date: data.date.toISOString(),
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ['transactions'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['bankAccounts'],
-      });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['bankAccounts'] });
       toast.success(
         newTransactionType === 'EXPENSE'
           ? 'Despensa cadastrada com sucesso!'

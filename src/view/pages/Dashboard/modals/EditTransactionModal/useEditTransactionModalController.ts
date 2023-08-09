@@ -63,12 +63,8 @@ export function useEditTransactionController(
         date: data!.date.toISOString(),
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ['transactions'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['bankAccounts'],
-      });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['bankAccounts'] });
       toast.success(
         transaction?.type === 'EXPENSE'
           ? 'Despesa editada com sucesso!'
