@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useDashboard } from "../DashboardContext/useDashboard";
-import { useTransactions } from "../../../../../app/hooks/useTransactions";
-import { TransactionsFilters } from "../../../../../app/services/transactionsService/getAll";
-import { Transaction } from "../../../../../app/entities/Transaction";
+import { useEffect, useState } from 'react';
+import { useDashboard } from '../DashboardContext/useDashboard';
+import { useTransactions } from '../../../../../app/hooks/useTransactions';
+import { TransactionsFilters } from '../../../../../app/services/transactionsService/getAll';
+import { Transaction } from '../../../../../app/entities/Transaction';
 
 export function useTransactionController() {
   const { areValuesVisible } = useDashboard();
@@ -43,8 +43,8 @@ export function useTransactionController() {
     bankAccountId: string | undefined;
     year: number;
   }) {
-    handleChangeFilters("bankAccountId")(bankAccountId);
-    handleChangeFilters("year")(year);
+    handleChangeFilters('bankAccountId')(bankAccountId);
+    handleChangeFilters('year')(year);
     setIsFiltersModalOpen(false);
   }
 

@@ -1,18 +1,17 @@
-import { FilterIcon } from "../../../../components/icons/FilterIcon";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { MONTHS } from "../../../../../app/config/constants";
-import { SliderOption } from "./SliderOption";
-import { SliderNavigation } from "./SliderNavigation";
-import { formatCurrency } from "../../../../../app/utils/formatCurrecy";
-import { CategoryIcon } from "../../../../components/icons/categories/CategoryIcon";
-import { useTransactionController } from "./useTransactionController";
-import { cn } from "../../../../../app/utils/cn";
-import { Spinner } from "../../../../components/Spinner";
-import emptyStateImage from "../../../../../assets/empty-state.svg";
-import { TransactionTypeDropdown } from "./TransactionTypeDropdown";
-import { FiltersModal } from "./FiltersModal";
-import { formatDate } from "../../../../../app/utils/formaDate";
-import { EditTransactionModal } from "../../modals/EditTransactionModal";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FilterIcon } from '../../../../components/icons/FilterIcon';
+import { MONTHS } from '../../../../../app/config/constants';
+import { SliderOption } from './SliderOption';
+import { SliderNavigation } from './SliderNavigation';
+import { formatCurrency, cn } from '../../../../../helpers';
+import { CategoryIcon } from '../../../../components/icons/categories/CategoryIcon';
+import { useTransactionController } from './useTransactionController';
+import { Spinner } from '../../../../components/Spinner';
+import { TransactionTypeDropdown } from './TransactionTypeDropdown';
+import { FiltersModal } from './FiltersModal';
+import { formatDate } from '../../../../../app/utils/formaDate';
+import { EditTransactionModal } from '../../modals/EditTransactionModal';
+import emptyStateImage from '../../../../../assets/empty-state.svg';
 
 export function Transactions() {
   const {
@@ -52,7 +51,7 @@ export function Transactions() {
           <header>
             <div className="flex items-center justify-between">
               <TransactionTypeDropdown
-                onSelect={handleChangeFilters("type")}
+                onSelect={handleChangeFilters('type')}
                 selectedType={filters.type}
               />
 
@@ -66,7 +65,7 @@ export function Transactions() {
                 slidesPerView={3}
                 centeredSlides
                 onSlideChange={(swiper) => {
-                  handleChangeFilters("month")(swiper.realIndex);
+                  handleChangeFilters('month')(swiper.realIndex);
                 }}
                 initialSlide={filters.month}
               >
@@ -111,7 +110,7 @@ export function Transactions() {
                     <div className="flex-1 flex items-center gap-3">
                       <CategoryIcon
                         type={
-                          transaction.type === "EXPENSE" ? "expense" : "income"
+                          transaction.type === 'EXPENSE' ? 'expense' : 'income'
                         }
                         category={transaction.category?.icon}
                       />
@@ -126,14 +125,14 @@ export function Transactions() {
                     </div>
                     <span
                       className={cn(
-                        " tracking-[-0.5px] font-medium",
-                        transaction.type === "EXPENSE"
-                          ? "text-red-800"
-                          : "text-green-800",
-                        !areValuesVisible && "blur-sm"
+                        ' tracking-[-0.5px] font-medium',
+                        transaction.type === 'EXPENSE'
+                          ? 'text-red-800'
+                          : 'text-green-800',
+                        !areValuesVisible && 'blur-sm'
                       )}
                     >
-                      {transaction.type === "EXPENSE" ? "-" : "+"}{" "}
+                      {transaction.type === 'EXPENSE' ? '-' : '+'}{' '}
                       {formatCurrency(transaction.value)}
                     </span>
                   </div>

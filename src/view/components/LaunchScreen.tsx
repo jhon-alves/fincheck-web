@@ -21,7 +21,7 @@ export function LaunchScreen({ isLoading }: LaunchScreenProps) {
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center justify-center gap-2">
             <Logo className="h-10 text-white" />
-            <span className="text-white font-bold">MyWallet</span>
+            <span className="text-white font-bold">My Wallet</span>
           </div>
           <Spinner className="text-teal-900 fill-white" />
         </div>

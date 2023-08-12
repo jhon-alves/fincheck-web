@@ -8,7 +8,7 @@ export function AuthLayout() {
       <div className="w-full h-full flex items-center justify-center flex-col gap-16 lg:w-1/2">
         <div className="flex items-center justify-center gap-2">
           <Logo className="h-6 text-gray-500" />
-          <span className="text-gray-500 font-bold">MyWallet</span>
+          <span className="text-gray-500 font-bold">My Wallet</span>
         </div>
 
         <div className="w-full max-w-[504px] px-8">

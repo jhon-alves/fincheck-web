@@ -21,7 +21,7 @@ export function Dashboard() {
             <header className="h-12 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Logo className="h-6 text-teal-900" />
-                <span className="text-teal-800 font-bold">MyWallet</span>
+                <span className="text-teal-800 font-bold">My Wallet</span>
               </div>
               <UserMenu />
             </header>
