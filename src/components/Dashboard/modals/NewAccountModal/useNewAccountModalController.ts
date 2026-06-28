@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDashboard } from '../../DashboardContext/useDashboard';
-import { BankAccountsService } from '../../../../services';
+import { banksServices } from '../../../../services/banks-services';
 import { currencyStringToNumber } from '../../../../helpers';
 
 const schema = z.object({
@@ -28,7 +28,9 @@ export function useNewAccountController() {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const queryClient = useQueryClient();
-  const { isLoading, mutateAsync } = useMutation(BankAccountsService.create);
+  const { isPending: isLoading, mutateAsync } = useMutation({
+    mutationFn: banksServices.createBank,
+  });
 
   const handleSubmit = hookFormHandleSubmit(async (data) => {
     try {
@@ -41,7 +43,7 @@ export function useNewAccountController() {
       toast.success('Conta cadastrada com sucesso!');
       closeNewAccountModal();
       reset();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao cadastrar conta');
     }
   });

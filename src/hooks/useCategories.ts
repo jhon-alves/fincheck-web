@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { CategoriesService } from '../services/categoriesService';
+import { getCategories } from '../services/categories-services';
 
 export function useCategories() {
   const { data, isFetching } = useQuery({
     queryKey: ['categories'],
-    queryFn: CategoriesService.getAll,
+    queryFn: getCategories,
   });
 
   return {

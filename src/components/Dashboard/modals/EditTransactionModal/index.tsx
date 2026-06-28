@@ -9,7 +9,7 @@ import {
   ConfirmDeleteModal
 } from '../../../Shared';
 import { TrashIcon } from '../../../Icons';
-import { Transaction } from '../../../../entities';
+import { Transaction } from '../../../../types/transactions-types';
 import { useEditTransactionController } from './useEditTransactionModalController';
 
 interface EditTransactionModalProps {

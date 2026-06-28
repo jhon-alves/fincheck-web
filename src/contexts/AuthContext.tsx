@@ -2,9 +2,9 @@ import { createContext, useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { localStorageKeys } from '../config/localStorageKeys';
-import { usersService } from '../services/usersService';
+import { me } from '../services/me-services';
 import { LaunchScreen } from '../components/';
-import { User } from '../entities/User';
+import { User } from '../types/me-types';
 
 interface AuthContextValue {
   signedIn: boolean;
@@ -25,9 +25,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return !!storedAccessToken;
   });
 
-  const { isError, isFetching, isSuccess, remove, data } = useQuery({
+  const { isError, isFetching, isSuccess, data } = useQuery({
     queryKey: ['users', 'me'],
-    queryFn: () => usersService.me(),
+    queryFn: me,
     enabled: signedIn,
     staleTime: Infinity,
   });
@@ -39,13 +39,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signout = useCallback(() => {
     localStorage.removeItem(localStorageKeys.ACCESS_TOKEN);
-    remove();
     setSignedIn(false);
     queryClient.clear();
-  }, [remove]);
+  }, [queryClient]);
 
   useEffect(() => {
     if (isError) {
+      // Sincroniza o estado de autenticação quando a query de usuário falha
+      // (ex.: token expirado), efetuando o logout.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       signout();
     }
   }, [isError, signout]);

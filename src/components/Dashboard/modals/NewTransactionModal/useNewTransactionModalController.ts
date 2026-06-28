@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { TransactionService } from '../../../../services';
+import { transactionsServices } from '../../../../services/transactions-services';
 import { currencyStringToNumber } from '../../../../helpers';
 import { useDashboard } from '../../DashboardContext/useDashboard';
 import { useCategories, useBankAccounts } from '../../../../hooks';
@@ -39,7 +39,9 @@ export function useNewTransactionController() {
   const queryClient = useQueryClient();
   const { accounts } = useBankAccounts();
   const { categories: categoriesList } = useCategories();
-  const { isLoading, mutateAsync } = useMutation(TransactionService.create);
+  const { isPending: isLoading, mutateAsync } = useMutation({
+    mutationFn: transactionsServices.createTransaction,
+  });
 
   const handleSubmit = hookFormHandleSubmit(async (data) => {
     try {
@@ -59,7 +61,7 @@ export function useNewTransactionController() {
       );
       closeNewTransactionModal();
       reset();
-    } catch (error) {
+    } catch {
       toast.error(
         newTransactionType === 'EXPENSE'
           ? 'Erro ao cadastrar despesa!'

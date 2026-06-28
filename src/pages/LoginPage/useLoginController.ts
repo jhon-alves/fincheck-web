@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../hooks';
-import { authService } from '../../services/authService';
-import { SigninParams } from '../../services/authService/signin';
+import { authServices } from '../../services/auth-services';
+import { SigninParams } from '../../types/auth-types';
 
 const schema = z.object({
   email: z
@@ -29,9 +29,9 @@ export function useLoginController() {
     resolver: zodResolver(schema),
   });
 
-  const { mutateAsync, isLoading } = useMutation({
+  const { mutateAsync, isPending: isLoading } = useMutation({
     mutationFn: async (data: SigninParams) => {
-      return authService.signin(data);
+      return authServices.signin(data);
     },
   });
 
@@ -41,7 +41,7 @@ export function useLoginController() {
     try {
       const { accessToken } = await mutateAsync(data);
       signin(accessToken);
-    } catch (error) {
+    } catch {
       toast.error('Ocorreu um erro ao entrar na sua conta');
     }
   });

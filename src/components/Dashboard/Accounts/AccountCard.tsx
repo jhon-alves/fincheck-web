@@ -1,4 +1,4 @@
-import { BankAccount } from '../../../entities';
+import { BankAccount } from '../../../types/bank-types';
 import { formatCurrency, cn } from '../../../helpers';
 import { useDashboard } from '../DashboardContext/useDashboard';
 import { BankAccountTypeIcon } from '../../Icons/bankAccountTypeIcon';

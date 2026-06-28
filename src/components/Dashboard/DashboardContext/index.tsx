@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useCallback, useState } from 'react';
-import { BankAccount } from '../../../entities';
+import { BankAccount } from '../../../types/bank-types';
 
 interface DashboardContextValue {
   areValuesVisible: boolean;

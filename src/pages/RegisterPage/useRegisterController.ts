@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../hooks';
-import { authService } from '../../services/authService';
-import { SignupParams } from '../../services/authService/signup';
+import { authServices } from '../../services/auth-services';
+import { SignupParams } from '../../types/auth-types';
 
 const schema = z.object({
   name: z.string().nonempty('Nome é obrigatório'),
@@ -30,9 +30,9 @@ export function useRegisterController() {
     resolver: zodResolver(schema),
   });
 
-  const { mutateAsync, isLoading } = useMutation({
+  const { mutateAsync, isPending: isLoading } = useMutation({
     mutationFn: async (data: SignupParams) => {
-      return authService.signup(data);
+      return authServices.signup(data);
     },
   });
 
@@ -42,7 +42,7 @@ export function useRegisterController() {
     try {
       const { accessToken } = await mutateAsync(data);
       signin(accessToken);
-    } catch (error) {
+    } catch {
       toast.error('Ocorreu um erro ao criar sua conta');
     }
   });

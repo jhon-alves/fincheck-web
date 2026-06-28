@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Transaction } from '../../../entities';
+import { Transaction } from '../../../types/transactions-types';
 import { useTransactions } from '../../../hooks';
 import { useDashboard } from '../DashboardContext/useDashboard';
-import { TransactionsFilters } from '../../../services/transactionsService/getAll';
+import { TransactionsFilters } from '../../../types/transactions-types';
 
 export function useTransactionController() {
   const { areValuesVisible } = useDashboard();

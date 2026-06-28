@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDashboard } from '../../DashboardContext/useDashboard';
-import { BankAccountsService } from '../../../../services';
+import { banksServices } from '../../../../services/banks-services';
 import { currencyStringToNumber } from '../../../../helpers';
 
 const schema = z.object({
@@ -42,11 +42,11 @@ export function useEditAccountController() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const queryClient = useQueryClient();
-  const { isLoading, mutateAsync: updateAccount } = useMutation(
-    BankAccountsService.update
-  );
-  const { isLoading: isLoadingDelete, mutateAsync: removeAccount } =
-    useMutation(BankAccountsService.remove);
+  const { isPending: isLoading, mutateAsync: updateAccount } = useMutation({
+    mutationFn: banksServices.updateBank,
+  });
+  const { isPending: isLoadingDelete, mutateAsync: removeAccount } =
+    useMutation({ mutationFn: banksServices.removeBank });
 
   const handleSubmit = hookFormHandleSubmit(async (data) => {
     try {
@@ -60,7 +60,7 @@ export function useEditAccountController() {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast.success('Conta editada com sucesso!');
       closeEditAccountModal();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao editar conta');
     }
   });
@@ -81,7 +81,7 @@ export function useEditAccountController() {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast.success('Conta removida com sucesso!');
       closeEditAccountModal();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao remover conta');
     }
   }

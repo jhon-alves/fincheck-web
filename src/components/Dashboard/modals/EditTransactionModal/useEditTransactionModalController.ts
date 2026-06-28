@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Transaction } from '../../../../entities';
-import { TransactionService } from '../../../../services';
+import { Transaction } from '../../../../types/transactions-types';
+import { transactionsServices } from '../../../../services/transactions-services';
 import { currencyStringToNumber } from '../../../../helpers';
 import { useCategories, useBankAccounts } from '../../../../hooks';
 
@@ -44,11 +44,11 @@ export function useEditTransactionController(
   const { accounts } = useBankAccounts();
   const { categories: categoriesList } = useCategories();
 
-  const { isLoading, mutateAsync: updateTransaction } = useMutation(
-    TransactionService.update
-  );
-  const { isLoading: isLoadingDelete, mutateAsync: removeTransaction } =
-    useMutation(TransactionService.remove);
+  const { isPending: isLoading, mutateAsync: updateTransaction } = useMutation({
+    mutationFn: transactionsServices.updateTransaction,
+  });
+  const { isPending: isLoadingDelete, mutateAsync: removeTransaction } =
+    useMutation({ mutationFn: transactionsServices.removeTransaction });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -70,7 +70,7 @@ export function useEditTransactionController(
           : 'Receita editada com sucesso!'
       );
       onClose();
-    } catch (error) {
+    } catch {
       toast.error(
         transaction?.type === 'EXPENSE'
           ? 'Erro ao cadastrar despesa!'
@@ -97,7 +97,7 @@ export function useEditTransactionController(
           : 'Receita removida com sucesso!'
       );
       onClose();
-    } catch (error) {
+    } catch {
       toast.error(
         transaction?.type === 'EXPENSE'
           ? 'Erro ao remover despesa!'
