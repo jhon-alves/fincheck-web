@@ -25,7 +25,7 @@ export function LoginPage() {
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="mt-[60px] flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="mt-15 flex flex-col gap-4">
         <Input
           type="email"
           placeholder="E-mail"

@@ -1,11 +1,11 @@
 import { Toaster } from 'react-hot-toast';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { theme } from './theme';
 import { Router } from './router';
 import { queryClient } from './helpers';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthProvider';
 
 export function App() {
   return (
@@ -17,7 +17,7 @@ export function App() {
         </AuthProvider>
       </ThemeProvider>
       <CssBaseline />
-      <ReactQueryDevtools />
+      {/* <ReactQueryDevtools /> */}
     </QueryClientProvider>
   );
 }

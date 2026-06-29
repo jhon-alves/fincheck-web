@@ -54,7 +54,7 @@ export function Transactions() {
                 selectedType={filters.type}
               />
 
-              <button onClick={handleOpenFiltersModal}>
+              <button onClick={handleOpenFiltersModal} className="cursor-pointer">
                 <FilterIcon />
               </button>
             </div>

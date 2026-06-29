@@ -1,23 +1,6 @@
-import { ReactNode, createContext, useCallback, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import { BankAccount } from '../../../types/bank-types';
-
-interface DashboardContextValue {
-  areValuesVisible: boolean;
-  toggleValueVisibility: () => void;
-  openNewAccountModal: () => void;
-  closeNewAccountModal: () => void;
-  isNewAccountModalOpen: boolean;
-  openNewTransactionModal: (type: 'INCOME' | 'EXPENSE') => void;
-  closeNewTransactionModal: () => void;
-  isNewTransactionModalOpen: boolean;
-  newTransactionType: 'INCOME' | 'EXPENSE' | null;
-  isEditAccountModalOpen: boolean;
-  openEditAccountModal: (bankAccount: BankAccount) => void;
-  closeEditAccountModal: () => void;
-  accountBeingEdited: BankAccount | null;
-}
-
-export const DashboardContext = createContext({} as DashboardContextValue);
+import { DashboardContext } from './DashboardContext';
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [areValuesVisible, setAreValuesVisible] = useState(true);

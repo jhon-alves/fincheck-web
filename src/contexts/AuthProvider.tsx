@@ -1,19 +1,10 @@
-import { createContext, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { localStorageKeys } from '../config/localStorageKeys';
 import { me } from '../services/me-services';
 import { LaunchScreen } from '../components/';
-import { User } from '../types/me-types';
-
-interface AuthContextValue {
-  signedIn: boolean;
-  signin(accessToken: string): void;
-  signout(): void;
-  user: User | undefined;
-}
-
-export const AuthContext = createContext({} as AuthContextValue);
+import { AuthContext } from './AuthContext';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();

@@ -44,7 +44,7 @@ export function Accounts() {
                 {formatCurrency(currentBalance)}
               </strong>
               <button
-                className="h-8 w-8 flex items-center justify-center"
+                className="h-8 w-8 flex items-center justify-center cursor-pointer"
                 onClick={toggleValueVisibility}
               >
                 <EyeIcon open={!areValuesVisible} />
@@ -60,7 +60,7 @@ export function Accounts() {
                   </strong>
                 </div>
                 <button
-                  className="mt-4 h-52 border-teal-600 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 text-white hover:bg-teal-950/5 transition-colors"
+                  className="mt-4 h-52 border-teal-600 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 text-white hover:bg-teal-950/5 transition-colors cursor-pointer"
                   onClick={openNewAccountModal}
                 >
                   <div className="w-11 h-11 rounded-full border-2 border-dashed border-white flex items-center justify-center">

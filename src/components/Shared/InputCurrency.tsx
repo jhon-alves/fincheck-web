@@ -18,9 +18,12 @@ export function InputCurrency({ error, onChange, value }: InputCurrencyProps) {
           'w-full text-gray-800 text-[32px] font-bold tracking-[-1px] outline-none',
           error && 'text-red-900'
         )}
+        placeholder="0,00"
         thousandSeparator="."
         decimalSeparator=","
-        defaultValue="0"
+        decimalScale={2}
+        fixedDecimalScale
+        allowNegative={false}
       />
 
       {error && (

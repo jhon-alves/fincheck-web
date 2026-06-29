@@ -38,7 +38,7 @@ export function Select({
           className={cn(
             'absolute z-10 top-1/2 left-3 -translate-y-1/2 text-gray-700 pointer-events-none',
             selectValue &&
-              'text-xs left-[13px] top-2 transition-all translate-y-0'
+              'text-xs left-3.25 top-2 transition-all translate-y-0'
           )}
         >
           {placeholder}
@@ -46,9 +46,9 @@ export function Select({
         <RadixSelect.Root value={value} onValueChange={handleSelect}>
           <RadixSelect.Trigger
             className={cn(
-              'bg-white w-full rounded-lg border border-gray-500 px-3 h-[52px] text-gray-800 focus:border-gray-800 transition-all outline-none text-left relative pt-4',
+              'bg-white w-full rounded-lg border border-gray-500 px-3 h-13 text-gray-800 focus:border-gray-800 transition-all outline-none text-left relative pt-4 cursor-pointer',
               className,
-              error && '!border-red-900'
+              error && 'border-red-900!'
             )}
           >
             <RadixSelect.Value />
@@ -57,8 +57,12 @@ export function Select({
             </RadixSelect.Icon>
           </RadixSelect.Trigger>
           <RadixSelect.Portal>
-            <RadixSelect.Content className="overflow-hidden bg-white z-[99] rounded-2xl border border-gray-100 shadow-[0px_11px_20px_0px_rgba(0,0,0,0.10)]">
-              <RadixSelect.ScrollUpButton className="flex items-center justify-center h-[25px] bg-white text-gray-800 cursor-default">
+            <RadixSelect.Content
+              position="popper"
+              sideOffset={4}
+              className="overflow-hidden bg-white z-99 rounded-2xl border border-gray-100 shadow-[0px_11px_20px_0px_rgba(0,0,0,0.10)] w-(--radix-select-trigger-width)"
+            >
+              <RadixSelect.ScrollUpButton className="flex items-center justify-center h-6.25 bg-white text-gray-800 cursor-default">
                 <ChevronUpIcon />
               </RadixSelect.ScrollUpButton>
               <RadixSelect.Viewport className="p-2">
@@ -66,13 +70,13 @@ export function Select({
                   <RadixSelect.Item
                     key={option.value}
                     value={option.value}
-                    className="p-2 text-sm text-gray-800 outline-none data-[state=checked]:font-bold data-[highlighted]:bg-gray-50 rounded-lg transition-colors"
+                    className="p-2 text-sm text-gray-800 outline-none data-[state=checked]:font-bold data-highlighted:bg-gray-50 rounded-lg transition-colors cursor-pointer"
                   >
                     <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
                   </RadixSelect.Item>
                 ))}
               </RadixSelect.Viewport>
-              <RadixSelect.ScrollDownButton className="flex items-center justify-center h-[25px] bg-white text-gray-800 cursor-default">
+              <RadixSelect.ScrollDownButton className="flex items-center justify-center h-6.25 bg-white text-gray-800 cursor-default">
                 <ChevronDownIcon />
               </RadixSelect.ScrollDownButton>
             </RadixSelect.Content>

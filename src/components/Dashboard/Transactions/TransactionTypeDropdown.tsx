@@ -14,7 +14,7 @@ export function TransactionTypeDropdown({
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
-        <button className="flex items-center gap-2">
+        <button className="flex items-center gap-2 cursor-pointer">
           {selectedType === 'EXPENSE' && <ExpensesIcon />}
           {selectedType === 'INCOME' && <IncomeIcon />}
           {selectedType === undefined && <TransactionsIcon />}
@@ -27,7 +27,7 @@ export function TransactionTypeDropdown({
         </button>
       </DropdownMenu.Trigger>
 
-      <DropdownMenu.Content className="w-[279px]">
+      <DropdownMenu.Content className="w-70">
         <DropdownMenu.Item
           className="gap-2"
           onSelect={() => onSelect('INCOME')}

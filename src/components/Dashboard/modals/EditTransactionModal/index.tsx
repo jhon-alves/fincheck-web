@@ -74,7 +74,6 @@ export function EditTransactionModal({
             <Controller
               control={control}
               name="value"
-              defaultValue="0"
               render={({ field: { onChange, value } }) => (
                 <InputCurrency
                   onChange={onChange}

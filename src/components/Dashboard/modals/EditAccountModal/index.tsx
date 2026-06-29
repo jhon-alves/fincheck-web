@@ -61,7 +61,6 @@ export function EditAccountModal() {
             <Controller
               name="initialBalance"
               control={control}
-              defaultValue="0"
               render={({ field: { onChange, value } }) => (
                 <InputCurrency
                   onChange={onChange}

@@ -58,9 +58,9 @@ export function ColorsDropdownInput({
         <DropdownMenu.Trigger>
           <button
             className={cn(
-              'bg-white w-full rounded-lg border border-gray-500 px-3 h-[52px] text-gray-700 focus:border-gray-800 transition-all outline-none text-left relative',
+              'bg-white w-full rounded-lg border border-gray-500 px-3 h-13 text-gray-700 focus:border-gray-800 transition-all outline-none text-left relative cursor-pointer',
               className,
-              error && '!border-red-900'
+              error && 'border-red-900!'
             )}
           >
             Cor
