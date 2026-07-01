@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Transaction } from '../../../../types/transactions-types';
 import { transactionsServices } from '../../../../services/transactions-services';
-import { currencyStringToNumber } from '../../../../helpers';
+import { currencyStringToNumber, dateToApi } from '../../../../helpers';
 import { useCategories, useBankAccounts } from '../../../../hooks';
 
 const schema = z.object({
@@ -15,6 +15,7 @@ const schema = z.object({
   categoryId: z.string().nonempty('Informe a categoria'),
   bankAccountId: z.string().nonempty('Informe a conta'),
   date: z.date(),
+  paid: z.boolean(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -36,6 +37,7 @@ export function useEditTransactionController(
       date: transaction ? new Date(transaction.date) : new Date(),
       name: transaction?.name,
       value: transaction?.value,
+      paid: transaction?.paid ?? true,
     },
   });
 
@@ -58,8 +60,8 @@ export function useEditTransactionController(
         ...data,
         id: transaction!.id,
         value: currencyStringToNumber(data!.value),
-        type: transaction!.type,
-        date: data!.date.toISOString(),
+        type: transaction!.type as 'INCOME' | 'EXPENSE',
+        date: dateToApi(data!.date),
       });
 
       queryClient.invalidateQueries({ queryKey: ['transactions'] });

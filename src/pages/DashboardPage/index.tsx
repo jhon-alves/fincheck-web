@@ -8,7 +8,8 @@ import {
 import {
   EditAccountModal,
   NewAccountModal,
-  NewTransactionModal
+  NewTransactionModal,
+  NewTransferModal
 } from '../../components/Dashboard/modals';
 import { Logo, UserMenu } from '../../components';
 
@@ -36,6 +37,7 @@ export function DashboardPage() {
             <Fab />
             <NewAccountModal />
             <NewTransactionModal />
+            <NewTransferModal />
             {accountBeingEdited && <EditAccountModal />}
           </div>
         )}

@@ -4,6 +4,7 @@ import {
   Input,
   Button,
   Select,
+  Switch,
   InputCurrency,
   DatePickerInput,
   ConfirmDeleteModal
@@ -139,6 +140,20 @@ export function EditTransactionModal({
                 onChange={onChange}
                 error={errors.date?.message}
               />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="paid"
+            defaultValue={true}
+            render={({ field: { onChange, value } }) => (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 tracking-[-0.5px]">
+                  {isExpense ? 'Despesa paga' : 'Receita recebida'}
+                </span>
+                <Switch checked={value} onChange={onChange} />
+              </div>
             )}
           />
         </div>

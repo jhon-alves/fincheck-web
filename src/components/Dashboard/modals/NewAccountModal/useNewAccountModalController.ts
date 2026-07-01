@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,6 +32,12 @@ export function useNewAccountController() {
   const { isPending: isLoading, mutateAsync } = useMutation({
     mutationFn: banksServices.createBank,
   });
+
+  useEffect(() => {
+    if (!isNewAccountModalOpen) {
+      reset();
+    }
+  }, [isNewAccountModalOpen, reset]);
 
   const handleSubmit = hookFormHandleSubmit(async (data) => {
     try {

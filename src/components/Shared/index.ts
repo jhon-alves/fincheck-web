@@ -12,4 +12,5 @@ export * from './Modal';
 export * from './Popover';
 export * from './Select';
 export * from './Spinner';
+export * from './Switch';
 export * from './UserMenu';

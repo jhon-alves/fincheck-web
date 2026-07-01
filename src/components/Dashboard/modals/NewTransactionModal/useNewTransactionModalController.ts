@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { transactionsServices } from '../../../../services/transactions-services';
-import { currencyStringToNumber } from '../../../../helpers';
+import { currencyStringToNumber, dateToApi } from '../../../../helpers';
 import { useDashboard } from '../../DashboardContext/useDashboard';
 import { useCategories, useBankAccounts } from '../../../../hooks';
 
@@ -15,6 +15,7 @@ const schema = z.object({
   categoryId: z.string().nonempty('Informe a categoria'),
   bankAccountId: z.string().nonempty('Informe a conta'),
   date: z.date(),
+  paid: z.boolean(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -43,13 +44,19 @@ export function useNewTransactionController() {
     mutationFn: transactionsServices.createTransaction,
   });
 
+  useEffect(() => {
+    if (!isNewTransactionModalOpen) {
+      reset();
+    }
+  }, [isNewTransactionModalOpen, reset]);
+
   const handleSubmit = hookFormHandleSubmit(async (data) => {
     try {
       await mutateAsync({
         ...data,
         value: currencyStringToNumber(data.value),
         type: newTransactionType!,
-        date: data.date.toISOString(),
+        date: dateToApi(data.date),
       });
 
       queryClient.invalidateQueries({ queryKey: ['transactions'] });

@@ -23,7 +23,7 @@ export function FiltersModal({
     selectedYear,
     handleChangeYear,
     accounts,
-  } = useFiltersModalController();
+  } = useFiltersModalController(open);
 
   return (
     <Modal open={open} onClose={onClose} title="Filtros">

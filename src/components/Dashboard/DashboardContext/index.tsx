@@ -13,6 +13,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [isEditAccountModalOpen, setIsEditAccountModalOpen] = useState(false);
   const [accountBeingEdited, setAccountBeingEdited] =
     useState<BankAccount | null>(null);
+  const [isNewTransferModalOpen, setIsNewTransferModalOpen] = useState(false);
 
   const toggleValueVisibility = useCallback(() => {
     setAreValuesVisible((prevState) => !prevState);
@@ -34,6 +35,14 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const closeNewTransactionModal = useCallback(() => {
     setNewTransactionType(null);
     setIsNewTransactionModalOpen(false);
+  }, []);
+
+  const openNewTransferModal = useCallback(() => {
+    setIsNewTransferModalOpen(true);
+  }, []);
+
+  const closeNewTransferModal = useCallback(() => {
+    setIsNewTransferModalOpen(false);
   }, []);
 
   const openEditAccountModal = useCallback((bankAccount: BankAccount) => {
@@ -62,6 +71,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         closeEditAccountModal,
         isEditAccountModalOpen,
         accountBeingEdited,
+        openNewTransferModal,
+        closeNewTransferModal,
+        isNewTransferModalOpen,
       }}
     >
       {children}

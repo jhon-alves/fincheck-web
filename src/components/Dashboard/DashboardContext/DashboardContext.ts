@@ -11,6 +11,9 @@ export interface DashboardContextValue {
   closeNewTransactionModal: () => void;
   isNewTransactionModalOpen: boolean;
   newTransactionType: 'INCOME' | 'EXPENSE' | null;
+  openNewTransferModal: () => void;
+  closeNewTransferModal: () => void;
+  isNewTransferModalOpen: boolean;
   isEditAccountModalOpen: boolean;
   openEditAccountModal: (bankAccount: BankAccount) => void;
   closeEditAccountModal: () => void;
