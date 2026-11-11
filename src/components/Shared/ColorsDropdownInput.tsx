@@ -1,29 +1,24 @@
-import { ChevronDownIcon, CrossCircledIcon } from '@radix-ui/react-icons';
+import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../helpers';
-import { DropdownMenu } from './DropdownMenu';
-import { ColorIcon } from '../Icons/ColorIcon';
-import { useState } from 'react';
+import { Popover } from './Popover';
+import { FieldError } from './FieldError';
 
-type Color = {
-  color: string;
-  bg: string;
-};
-
-const colors: Color[] = [
-  { color: '#868E96', bg: '#F8F9FA' },
-  { color: '#FA5252', bg: '#FFF5F5' },
-  { color: '#E64980', bg: '#FFF0F6' },
-  { color: '#BE4BDB', bg: '#F8F0FC' },
-  { color: '#7950F2', bg: '#F3F0FF' },
-  { color: '#4C6EF5', bg: '#EDF2FF' },
-  { color: '#228BE6', bg: '#E7F5FF' },
-  { color: '#15AABF', bg: '#E3FAFC' },
-  { color: '#12B886', bg: '#E6FCF5' },
-  { color: '#40C057', bg: '#EBFBEE' },
-  { color: '#82C91E', bg: '#F4FCE3' },
-  { color: '#FAB005', bg: '#FFF9DB' },
-  { color: '#FD7E14', bg: '#FFF4E6' },
-  { color: '#212529', bg: '#F8F9FA' },
+/** Cores das contas (valor salvo no banco, por isso em hex). */
+const ACCOUNT_COLORS = [
+  '#868E96',
+  '#FA5252',
+  '#E64980',
+  '#BE4BDB',
+  '#7950F2',
+  '#4C6EF5',
+  '#228BE6',
+  '#15AABF',
+  '#12B886',
+  '#40C057',
+  '#82C91E',
+  '#FAB005',
+  '#FD7E14',
+  '#212529',
 ];
 
 interface ColorsDropdownInputProps {
@@ -39,59 +34,55 @@ export function ColorsDropdownInput({
   onChange,
   value,
 }: ColorsDropdownInputProps) {
-  const [selectedColor, setSelectedColor] = useState<Color | null>(() => {
-    if (!value) {
-      return null;
-    }
-
-    return colors.find((color) => color.color === value) ?? null;
-  });
-
-  function handleSelect(color: Color) {
-    setSelectedColor(color);
-    onChange?.(color.color);
-  }
-
   return (
     <div>
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger>
+      <Popover.Root>
+        <Popover.Trigger>
           <button
+            type="button"
+            aria-invalid={!!error || undefined}
             className={cn(
-              'bg-white w-full rounded-lg border border-gray-500 px-3 h-13 text-gray-700 focus:border-gray-800 transition-all outline-none text-left relative cursor-pointer',
+              'relative h-[52px] w-full rounded-2xl border border-border bg-card px-3.5 text-left text-muted outline-none transition-[border-color,box-shadow]',
+              'focus-visible:ring-4 focus-visible:ring-ring',
+              error && 'border-expense!',
               className,
-              error && 'border-red-900!'
             )}
           >
             Cor
-            <div className=" absolute right-3 top-1/2 -translate-y-1/2">
-              {!selectedColor && (
-                <ChevronDownIcon className="w-6 h-6 text-gray-800" />
+            <span className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center gap-2">
+              {value ? (
+                <span
+                  className="size-6 rounded-full ring-2 ring-card ring-offset-1 ring-offset-border"
+                  style={{ backgroundColor: value }}
+                />
+              ) : (
+                <ChevronDown size={18} />
               )}
-              {selectedColor && (
-                <ColorIcon bg={selectedColor.bg} color={selectedColor.color} />
-              )}
-            </div>
+            </span>
           </button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content className="grid grid-cols-4">
-          {colors.map((color) => (
-            <DropdownMenu.Item
-              key={color.color}
-              onSelect={() => handleSelect(color)}
-            >
-              <ColorIcon color={color.color} bg={color.bg} />
-            </DropdownMenu.Item>
-          ))}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+        </Popover.Trigger>
+        <Popover.Content align="end" className="w-64 p-3">
+          <div className="grid grid-cols-7 gap-2" role="listbox" aria-label="Cores">
+            {ACCOUNT_COLORS.map((color) => (
+              <Popover.Close asChild key={color}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={value === color}
+                  aria-label={`Cor ${color}`}
+                  onClick={() => onChange?.(color)}
+                  className="grid size-7 place-items-center rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring"
+                  style={{ backgroundColor: color }}
+                >
+                  {value === color && <Check size={14} className="text-white" />}
+                </button>
+              </Popover.Close>
+            ))}
+          </div>
+        </Popover.Content>
+      </Popover.Root>
 
-      {error && (
-        <div className="flex items-center gap-2 mt-2 text-red-900">
-          <CrossCircledIcon />
-          <span className="text-xs">{error}</span>
-        </div>
-      )}
+      <FieldError message={error} />
     </div>
   );
 }

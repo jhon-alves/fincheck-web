@@ -1,6 +1,7 @@
 import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { capitalizeFirstLetter } from '../../helpers';
 
 interface DatePickerProps {
@@ -13,30 +14,35 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
     <DayPicker
       locale={ptBR}
       selected={value}
+      defaultMonth={value}
       mode="single"
-      onSelect={(date) => onChange(date ?? new Date())}
+      onSelect={(date) => date && onChange(date)}
+      components={{
+        IconLeft: () => <ChevronLeft size={18} />,
+        IconRight: () => <ChevronRight size={18} />,
+      }}
       classNames={{
-        caption: 'flex items-center justify-between',
+        months: 'flex',
+        month: 'space-y-3',
+        caption: 'flex items-center justify-between pl-2',
         nav: 'flex gap-1',
-        nav_button_previous:
-          'text-teal-800 flex items-center justify-center !bg-transparent',
-        nav_button_next:
-          'text-teal-800 flex items-center justify-center !bg-transparent',
-        head_cell: 'uppercase text-xs text-gray-500 font-medium pt-1 pb-2',
-        button:
-          'text-gray-700 cursor-pointer w-10 h-10 hover:bg-teal-100 rounded-full',
-        day_today: 'bg-gray-100 font-bold text-gray-900',
-        day_selected: '!bg-teal-900 text-white font-medium',
+        nav_button:
+          'grid size-8 place-items-center rounded-full text-fg-soft hover:bg-subtle',
+        table: 'border-collapse',
+        head_cell: 'pb-1 text-[11px] font-medium uppercase text-muted',
+        cell: 'p-0.5',
+        day: 'grid size-9 place-items-center rounded-full text-sm text-fg hover:bg-subtle money',
+        day_today: 'font-bold text-primary-strong',
+        day_selected: 'bg-primary! text-on-primary! font-semibold',
+        day_outside: 'text-muted/50',
       }}
       formatters={{
-        formatCaption: (date, options) => {
-          return (
-            <span className="tracking-[-0.408px] text-gray-900 font-medium">
-              {capitalizeFirstLetter(format(date, 'LLLL yyyy', options))}
-            </span>
-          );
-        },
+        formatCaption: (date, options) => (
+          <span className="text-sm font-semibold text-fg">
+            {capitalizeFirstLetter(format(date, 'LLLL yyyy', options))}
+          </span>
+        ),
       }}
-    ></DayPicker>
+    />
   );
 }

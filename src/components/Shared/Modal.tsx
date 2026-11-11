@@ -1,49 +1,54 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Cross2Icon } from '@radix-ui/react-icons';
+import { X } from 'lucide-react';
 import { cn } from '../../helpers';
 
 interface ModalProps {
   open: boolean;
   title: string;
+  description?: string;
   children: React.ReactNode;
   rightAction?: React.ReactNode;
   onClose?: () => void;
+  className?: string;
 }
 
 export function Modal({
   children,
   open,
   title,
+  description,
   rightAction,
   onClose,
+  className,
 }: ModalProps) {
   return (
-    <Dialog.Root open={open} onOpenChange={onClose}>
+    <Dialog.Root open={open} onOpenChange={(next) => !next && onClose?.()}>
       <Dialog.Portal>
-        <Dialog.Overlay
-          className={cn(
-            'fixed inset-0 bg-black/80 backdrop-blur-sm z-50',
-            'data-[state=open]:animate-overlay-show'
-          )}
-        />
+        <Dialog.Overlay className="fixed inset-0 z-[60] bg-overlay backdrop-blur-[2px] data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in" />
         <Dialog.Content
           className={cn(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 space-y-10 bg-white rounded-2xl z-51 shadow-[0px_11px_20px_0px_rgba(0,0,0,0.10)] w-full max-w-100 outline-none',
-            'data-[state=open]:animate-content-show'
+            'fixed top-1/2 left-1/2 z-[61] w-[calc(100%-2rem)] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border bg-card p-6 shadow-float outline-none',
+            'data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in',
+            className,
           )}
         >
-          <header className="h-12 flex items-center justify-between text-gray-800">
-            <button
-              className="w-12 h-12 flex items-center justify-center outline-none cursor-pointer"
-              onClick={onClose}
+          <header className="mb-6 flex items-center justify-between gap-3">
+            <Dialog.Close
+              aria-label="Fechar"
+              className="grid size-10 place-items-center rounded-full text-fg-soft transition-colors outline-none hover:bg-subtle focus-visible:ring-4 focus-visible:ring-ring"
             >
-              <Cross2Icon className="w-6 h-6" />
-            </button>
-            <span className="text-lg font-bold tracking-[-1px]">{title}</span>
-            <div className="w-12 h-12 flex items-center justify-center">
-              {rightAction}
-            </div>
+              <X size={20} />
+            </Dialog.Close>
+            <Dialog.Title className="text-lg font-semibold tracking-tight text-fg">
+              {title}
+            </Dialog.Title>
+            <div className="grid size-10 place-items-center">{rightAction}</div>
           </header>
+          {description ? (
+            <Dialog.Description className="sr-only">{description}</Dialog.Description>
+          ) : (
+            <Dialog.Description className="sr-only">{title}</Dialog.Description>
+          )}
 
           <div>{children}</div>
         </Dialog.Content>

@@ -1,5 +1,5 @@
-import { Transition } from '@headlessui/react';
-import { Logo } from './Logo';
+import { AnimatePresence, motion } from 'motion/react';
+import { LogoMark } from './Logo';
 import { Spinner } from './Spinner';
 
 interface LaunchScreenProps {
@@ -8,24 +8,27 @@ interface LaunchScreenProps {
 
 export function LaunchScreen({ isLoading }: LaunchScreenProps) {
   return (
-    <Transition
-      show={isLoading}
-      enter="transition-opacity duration-75"
-      enterFrom="opacity-0"
-      enterTo="opacity-100"
-      leave="transition-opacity duration-150"
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0"
-    >
-      <div className="fixed top-0 left-0 w-full h-full bg-teal-900 grid place-items-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-center gap-2">
-            <Logo className="h-10 text-white" />
-            <span className="text-white font-bold">My Wallet</span>
+    <AnimatePresence>
+      {isLoading && (
+        <motion.div
+          key="launch"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="app-backdrop fixed inset-0 z-[100] grid place-items-center"
+          role="status"
+          aria-label="Carregando"
+        >
+          <div className="flex flex-col items-center gap-5">
+            <div className="flex items-center gap-3">
+              <LogoMark className="size-12" />
+              <span className="text-xl font-semibold tracking-tight text-fg">Fincheck</span>
+            </div>
+            <Spinner className="size-6 text-primary-strong" />
           </div>
-          <Spinner className="text-teal-900 fill-white" />
-        </div>
-      </div>
-    </Transition>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

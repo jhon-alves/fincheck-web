@@ -16,20 +16,23 @@ function DropdownMenuTrigger({ children }: { children: React.ReactNode }) {
 interface DropdownMenuContentProps {
   children: React.ReactNode;
   className?: string;
+  align?: 'start' | 'center' | 'end';
 }
 
 function DropdownMenuContent({
   children,
   className,
+  align = 'end',
 }: DropdownMenuContentProps) {
   return (
     <RadixDropdownMenu.Portal>
       <RadixDropdownMenu.Content
+        align={align}
+        sideOffset={8}
         className={cn(
-          'p-2 rounded-2xl bg-white space-y-2 shadow-[0px_11px_20px_0px_rgba(0,0,0,0.10)]',
-          'data-[side=bottom]:animate-slide-up-and-fade z-[99]',
-          'data-[side=top]:animate-slide-down-and-fade z-[99]',
-          className
+          'z-[95] min-w-48 rounded-2xl border border-border bg-card-elevated p-1.5 shadow-float',
+          'data-[side=bottom]:animate-slide-up-and-fade data-[side=top]:animate-slide-down-and-fade',
+          className,
         )}
       >
         {children}
@@ -42,23 +45,37 @@ interface DropdownMenuItemProps {
   children: React.ReactNode;
   className?: string;
   onSelect?: () => void;
+  variant?: 'default' | 'danger';
 }
 
 function DropdownMenuItem({
   children,
   className,
   onSelect,
+  variant = 'default',
 }: DropdownMenuItemProps) {
   return (
     <RadixDropdownMenu.Item
       onSelect={onSelect}
       className={cn(
-        'min-h-[40px] outline-none flex items-center px-4 py-2 text-sm text-gray-800 data-[highlighted]:bg-gray-50 transition-colors rounded-2xl, cursor-pointer',
-        className
+        'flex min-h-10 cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-fg outline-none transition-colors select-none',
+        'data-[highlighted]:bg-subtle',
+        variant === 'danger' && 'text-expense-strong data-[highlighted]:bg-expense-soft',
+        className,
       )}
     >
       {children}
     </RadixDropdownMenu.Item>
+  );
+}
+
+function DropdownMenuSeparator() {
+  return <RadixDropdownMenu.Separator className="my-1 h-px bg-border" />;
+}
+
+function DropdownMenuLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <RadixDropdownMenu.Label className="px-3 py-2">{children}</RadixDropdownMenu.Label>
   );
 }
 
@@ -67,4 +84,6 @@ export const DropdownMenu = {
   Trigger: DropdownMenuTrigger,
   Content: DropdownMenuContent,
   Item: DropdownMenuItem,
+  Separator: DropdownMenuSeparator,
+  Label: DropdownMenuLabel,
 };
