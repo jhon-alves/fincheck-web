@@ -22,9 +22,11 @@ Toda a interface é em **português do Brasil**, com valores em **reais (BRL)** 
 - Vite 8 · React 18 · TypeScript (estrito)
 - Tailwind CSS v4: tokens em `src/index.css`, sem `tailwind.config.js`
 - React Router 7 · TanStack React Query 5 · axios
-- React Hook Form + Zod (`@hookform/resolvers`)
+- React Hook Form + Zod 4 (`@hookform/resolvers` 5)
 - Radix (dialog, dropdown-menu, popover, select, tooltip), `motion`, `lucide-react`, Recharts, `card-validator`, `react-hot-toast`
 - Fonte Geist (`@fontsource-variable/geist`)
+
+O `package.json` tem um `override` de `minimatch` para `^11.0.8`, porque o ESLint e o `typescript-eslint` ainda pedem a 10 (GHSA-g3hv-75wg-m249). Quando eles passarem a pedir a versão corrigida, o override pode sair. Confira com `npm audit`.
 
 ## Comandos
 
@@ -115,7 +117,7 @@ Use essas funções em vez de criar drawers locais de lançamento.
 
 ### Formulários
 
-- React Hook Form + Zod. Para observar campos, use `useWatch({ name })` em vez de `form.watch()` (o lint reclama e re-renderiza demais).
+- React Hook Form + Zod 4. Mensagens customizadas usam `{ error: '...' }` (o `required_error` do Zod 3 não existe mais). Com o Zod 4, o `superRefine` roda junto com os erros de campo, então o formulário mostra todos os erros de uma vez. Para observar campos, use `useWatch({ name })` em vez de `form.watch()` (o lint reclama e re-renderiza demais).
 - Mensagens de erro da API: `apiErrorMessage(error, fallback)` em `helpers/apiError.ts`, exibidas com `toast.error`.
 - Lançamento parcelado ou recorrente: editar ou excluir abre o `InstallmentScopeDialog` ("só esta", "esta e as próximas", "todas") e envia `?scope=` para a API.
 

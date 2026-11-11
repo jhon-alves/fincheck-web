@@ -34,7 +34,7 @@ const schema = z
     type: z.enum(['EXPENSE', 'INCOME', 'TRANSFER']),
     value: z.union([z.string(), z.number()]),
     name: z.string().max(120, 'Use até 120 caracteres'),
-    date: z.date({ required_error: 'Informe a data' }),
+    date: z.date({ error: 'Informe a data' }),
     categoryId: z.string(),
     notes: z.string().max(500, 'Use até 500 caracteres'),
     paymentMethod: z.enum(['ACCOUNT', 'PIX', 'CASH', 'CREDIT_CARD', 'DEBIT_CARD']),
