@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import { useInvalidateFinance } from '../../../../hooks/useInvalidateFinance';
 import { useDashboard } from '../../DashboardContext/useDashboard';
 import { banksServices } from '../../../../services/banks-services';
 import { currencyStringToNumber } from '../../../../helpers';
@@ -41,7 +42,7 @@ export function useEditAccountController() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const queryClient = useQueryClient();
+  const invalidateFinance = useInvalidateFinance();
   const { isPending: isLoading, mutateAsync: updateAccount } = useMutation({
     mutationFn: banksServices.updateBank,
   });
@@ -56,8 +57,7 @@ export function useEditAccountController() {
         id: accountBeingEdited!.id,
       });
 
-      queryClient.invalidateQueries({ queryKey: ['bankAccounts'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateFinance();
       toast.success('Conta editada com sucesso!');
       closeEditAccountModal();
     } catch {
@@ -77,8 +77,7 @@ export function useEditAccountController() {
     try {
       await removeAccount(accountBeingEdited!.id);
 
-      queryClient.invalidateQueries({ queryKey: ['bankAccounts'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateFinance();
       toast.success('Conta removida com sucesso!');
       closeEditAccountModal();
     } catch {

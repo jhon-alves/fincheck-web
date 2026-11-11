@@ -1,21 +1,28 @@
-import { useState } from 'react';
+import { ReactNode, useId } from 'react';
 import * as RadixSelect from '@radix-ui/react-select';
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  CrossCircledIcon,
-} from '@radix-ui/react-icons';
+import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '../../helpers';
+import { FieldError } from './FieldError';
+
+export type SelectOption = {
+  value: string;
+  label: string;
+  /** Ícone/visual à esquerda (ex.: mini cartão com bandeira). */
+  icon?: ReactNode;
+  description?: string;
+};
 
 interface SelectProps {
   className?: string;
   error?: string;
   placeholder?: string;
-  options: { value: string; label: string }[];
+  options: SelectOption[];
   value?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean;
 }
 
+/** Select com rótulo flutuante: o `placeholder` vira o rótulo. */
 export function Select({
   className,
   error,
@@ -23,72 +30,89 @@ export function Select({
   options,
   onChange,
   value,
+  disabled,
 }: SelectProps) {
-  const [selectValue, setSelectedValue] = useState(value);
-
-  function handleSelect(value: string) {
-    setSelectedValue(value);
-    onChange?.(value);
-  }
+  const labelId = useId();
+  const selected = options.find((option) => option.value === value);
+  const hasValue = !!selected;
 
   return (
     <div>
       <div className="relative">
-        <label
+        <span
+          id={labelId}
           className={cn(
-            'absolute z-10 top-1/2 left-3 -translate-y-1/2 text-gray-700 pointer-events-none',
-            selectValue &&
-              'text-xs left-3.25 top-2 transition-all translate-y-0'
+            'pointer-events-none absolute top-1/2 left-3.5 z-10 -translate-y-1/2 text-muted transition-all',
+            hasValue && 'top-2 translate-y-0 text-xs',
           )}
         >
           {placeholder}
-        </label>
-        <RadixSelect.Root value={value} onValueChange={handleSelect}>
+        </span>
+        <RadixSelect.Root value={value ?? ''} onValueChange={onChange} disabled={disabled}>
           <RadixSelect.Trigger
+            aria-labelledby={labelId}
+            aria-invalid={!!error || undefined}
             className={cn(
-              'bg-white w-full rounded-lg border border-gray-500 px-3 h-13 text-gray-800 focus:border-gray-800 transition-all outline-none text-left relative pt-4 cursor-pointer',
+              'relative flex h-[52px] w-full items-center gap-2 rounded-2xl border border-border bg-card px-3.5 text-left text-fg outline-none transition-[border-color,box-shadow]',
+              'focus:border-fg/30 focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50',
+              hasValue && 'pt-4',
+              error && 'border-expense!',
               className,
-              error && 'border-red-900!'
             )}
           >
-            <RadixSelect.Value />
-            <RadixSelect.Icon className="absolute right-3 top-1/2 -translate-y-1/2">
-              <ChevronDownIcon className="w-6 h-6 text-gray-800" />
+            {selected?.icon && <span className="shrink-0">{selected.icon}</span>}
+            <span className="min-w-0 flex-1 truncate">
+              <RadixSelect.Value>{selected?.label}</RadixSelect.Value>
+            </span>
+            <RadixSelect.Icon className="absolute top-1/2 right-3 -translate-y-1/2 text-muted">
+              <ChevronDown size={18} />
             </RadixSelect.Icon>
           </RadixSelect.Trigger>
           <RadixSelect.Portal>
             <RadixSelect.Content
               position="popper"
-              sideOffset={4}
-              className="overflow-hidden bg-white z-99 rounded-2xl border border-gray-100 shadow-[0px_11px_20px_0px_rgba(0,0,0,0.10)] w-(--radix-select-trigger-width)"
+              sideOffset={6}
+              className={cn(
+                'z-[95] max-h-(--radix-select-content-available-height) w-(--radix-select-trigger-width) overflow-hidden rounded-2xl border border-border bg-card-elevated shadow-float',
+                'data-[side=bottom]:animate-slide-up-and-fade data-[side=top]:animate-slide-down-and-fade',
+              )}
             >
-              <RadixSelect.ScrollUpButton className="flex items-center justify-center h-6.25 bg-white text-gray-800 cursor-default">
-                <ChevronUpIcon />
+              <RadixSelect.ScrollUpButton className="flex h-6 items-center justify-center text-muted">
+                <ChevronUp size={16} />
               </RadixSelect.ScrollUpButton>
-              <RadixSelect.Viewport className="p-2">
+              <RadixSelect.Viewport className="p-1.5">
+                {options.length === 0 && (
+                  <p className="px-3 py-2.5 text-sm text-muted">Nenhuma opção disponível</p>
+                )}
                 {options.map((option) => (
                   <RadixSelect.Item
                     key={option.value}
                     value={option.value}
-                    className="p-2 text-sm text-gray-800 outline-none data-[state=checked]:font-bold data-highlighted:bg-gray-50 rounded-lg transition-colors cursor-pointer"
+                    className="relative flex cursor-pointer items-center gap-2.5 rounded-xl py-2 pr-9 pl-2.5 text-sm text-fg outline-none transition-colors select-none data-[highlighted]:bg-subtle data-[state=checked]:font-semibold"
                   >
-                    <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
+                    {option.icon && <span className="shrink-0">{option.icon}</span>}
+                    <span className="min-w-0">
+                      <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
+                      {option.description && (
+                        <span className="block truncate text-xs font-normal text-muted">
+                          {option.description}
+                        </span>
+                      )}
+                    </span>
+                    <RadixSelect.ItemIndicator className="absolute right-3 text-primary-strong">
+                      <Check size={16} />
+                    </RadixSelect.ItemIndicator>
                   </RadixSelect.Item>
                 ))}
               </RadixSelect.Viewport>
-              <RadixSelect.ScrollDownButton className="flex items-center justify-center h-6.25 bg-white text-gray-800 cursor-default">
-                <ChevronDownIcon />
+              <RadixSelect.ScrollDownButton className="flex h-6 items-center justify-center text-muted">
+                <ChevronDown size={16} />
               </RadixSelect.ScrollDownButton>
             </RadixSelect.Content>
           </RadixSelect.Portal>
         </RadixSelect.Root>
       </div>
-      {error && (
-        <div className="flex items-center gap-2 mt-2 text-red-900">
-          <CrossCircledIcon />
-          <span className="text-xs">{error}</span>
-        </div>
-      )}
+      <FieldError message={error} />
     </div>
   );
 }

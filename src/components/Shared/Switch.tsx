@@ -3,24 +3,29 @@ import { cn } from '../../helpers';
 interface SwitchProps {
   checked?: boolean;
   onChange?: (checked: boolean) => void;
+  'aria-label'?: string;
+  id?: string;
 }
 
-export function Switch({ checked = false, onChange }: SwitchProps) {
+export function Switch({ checked = false, onChange, id, ...props }: SwitchProps) {
   return (
     <button
+      id={id}
       type="button"
       role="switch"
       aria-checked={checked}
+      aria-label={props['aria-label']}
       onClick={() => onChange?.(!checked)}
       className={cn(
-        'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors outline-none cursor-pointer',
-        checked ? 'bg-teal-900' : 'bg-gray-300'
+        'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors outline-none',
+        'focus-visible:ring-4 focus-visible:ring-ring',
+        checked ? 'border-primary-strong bg-primary-strong' : 'border-border bg-subtle',
       )}
     >
       <span
         className={cn(
-          'inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
-          checked ? 'translate-x-[22px]' : 'translate-x-0.5'
+          'inline-block size-5 rounded-full bg-card shadow-sm transition-transform duration-200',
+          checked ? 'translate-x-[22px]' : 'translate-x-[3px]',
         )}
       />
     </button>

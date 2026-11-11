@@ -28,11 +28,9 @@ export function NewAccountModal() {
     >
       <form onSubmit={handleSubmit}>
         <div>
-          <span className="text-gray-600 text-xs tracking-[-0.5px]">
-            Saldo inicial
-          </span>
+          <span className="text-xs font-medium text-muted">Saldo inicial</span>
           <div className="flex items-center gap-2">
-            <span className="text-gray-600 text-lg tracking-[-0.5px]">R$</span>
+            <span className="text-lg text-muted">R$</span>
             <Controller
               name="initialBalance"
               control={control}
@@ -47,10 +45,10 @@ export function NewAccountModal() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-4">
+        <div className="mt-8 flex flex-col gap-4">
           <Input
             type="text"
-            placeholder="Nome da Conta"
+            placeholder="Nome da conta"
             error={errors.name?.message}
             {...register('name')}
           />
@@ -66,9 +64,9 @@ export function NewAccountModal() {
                 value={value}
                 error={errors.type?.message}
                 options={[
-                  { value: 'CHECKING', label: 'Conta Corrente' },
+                  { value: 'CHECKING', label: 'Conta corrente' },
                   { value: 'INVESTMENT', label: 'Investimentos' },
-                  { value: 'CASH', label: 'Dinheiro Físico' },
+                  { value: 'CASH', label: 'Dinheiro físico' },
                 ]}
               />
             )}
@@ -88,7 +86,7 @@ export function NewAccountModal() {
           />
         </div>
 
-        <Button type="submit" className="w-full mt-6" isLoading={isLoading}>
+        <Button type="submit" size="lg" className="mt-6 w-full" isLoading={isLoading}>
           Criar
         </Button>
       </form>

@@ -7,25 +7,25 @@ export function RegisterPage() {
 
   return (
     <>
-      <header className="flex flex-col items-center gap-4 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-[-1px]">
+      <header className="flex flex-col gap-2">
+        <h1 className="text-3xl font-semibold tracking-tight text-fg">
           Crie sua conta
         </h1>
 
-        <p className="space-x-2">
-          <span className="text-gray-700 tracking-[-0.5px]">
+        <p className="space-x-1.5 text-sm">
+          <span className="text-muted">
             Já possui uma conta?
           </span>
           <Link
             to="/login"
-            className="tracking-[-0.5px] font-medium text-teal-900"
+            className="font-semibold text-primary-strong underline-offset-4 hover:underline dark:text-primary"
           >
             Fazer login
           </Link>
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="mt-[60px] flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
         <Input
           placeholder="Nome"
           {...register('name')}
@@ -44,7 +44,7 @@ export function RegisterPage() {
           error={errors.password?.message}
         />
 
-        <Button type="submit" className="mt-2" isLoading={isLoading}>
+        <Button type="submit" size="lg" className="mt-2" isLoading={isLoading}>
           Criar conta
         </Button>
       </form>

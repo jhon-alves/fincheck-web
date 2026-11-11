@@ -8,7 +8,7 @@ import {
   ConfirmDeleteModal,
   ColorsDropdownInput
 } from '../../../Shared';
-import { TrashIcon } from '../../../Icons';
+import { Trash2 } from 'lucide-react';
 import { useEditAccountController } from './useEditAccountModalController';
 
 export function EditAccountModal() {
@@ -31,8 +31,7 @@ export function EditAccountModal() {
     return (
       <ConfirmDeleteModal
         title="Tem certeza que deseja excluir essa conta?"
-        description=" Ao excluir a conta, também serão excluídos todos os registros de
-        receita e despesas relacionados"
+        description="Ao excluir a conta, também serão excluídos todos os lançamentos ligados a ela."
         onClose={handleCloseDeleteModal}
         onConfirm={handleDeleteAccount}
         isLoading={isLoadingDelete}
@@ -46,18 +45,21 @@ export function EditAccountModal() {
       onClose={closeEditAccountModal}
       title="Editar conta"
       rightAction={
-        <button onClick={handleOpenDeleteModal}>
-          <TrashIcon className="w-6 h-6 text-red-900" />
+        <button
+          type="button"
+          onClick={handleOpenDeleteModal}
+          aria-label="Excluir conta"
+          className="grid size-10 place-items-center rounded-full text-expense-strong transition-colors hover:bg-expense-soft"
+        >
+          <Trash2 size={20} />
         </button>
       }
     >
       <form onSubmit={handleSubmit}>
         <div>
-          <span className="text-gray-600 text-xs tracking-[-0.5px]">
-            Saldo inicial
-          </span>
+          <span className="text-xs font-medium text-muted">Saldo inicial</span>
           <div className="flex items-center gap-2">
-            <span className="text-gray-600 text-lg tracking-[-0.5px]">R$</span>
+            <span className="text-lg text-muted">R$</span>
             <Controller
               name="initialBalance"
               control={control}
@@ -72,10 +74,10 @@ export function EditAccountModal() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-4">
+        <div className="mt-8 flex flex-col gap-4">
           <Input
             type="text"
-            placeholder="Nome da Conta"
+            placeholder="Nome da conta"
             error={errors.name?.message}
             {...register('name')}
           />
@@ -91,9 +93,9 @@ export function EditAccountModal() {
                 value={value}
                 error={errors.type?.message}
                 options={[
-                  { value: 'CHECKING', label: 'Conta Corrente' },
+                  { value: 'CHECKING', label: 'Conta corrente' },
                   { value: 'INVESTMENT', label: 'Investimentos' },
-                  { value: 'CASH', label: 'Dinheiro Físico' },
+                  { value: 'CASH', label: 'Dinheiro físico' },
                 ]}
               />
             )}
@@ -113,7 +115,7 @@ export function EditAccountModal() {
           />
         </div>
 
-        <Button type="submit" className="w-full mt-6" isLoading={isLoading}>
+        <Button type="submit" size="lg" className="mt-6 w-full" isLoading={isLoading}>
           Salvar
         </Button>
       </form>

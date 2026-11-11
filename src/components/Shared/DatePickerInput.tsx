@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { CrossCircledIcon } from '@radix-ui/react-icons';
-import { Popover } from './Popover';
+import { CalendarDays } from 'lucide-react';
+import * as RadixPopover from '@radix-ui/react-popover';
 import { DatePicker } from './DatePicker';
+import { FieldError } from './FieldError';
 import { cn, formatDate } from '../../helpers';
 
 interface DatePickerInputProps {
@@ -9,6 +10,7 @@ interface DatePickerInputProps {
   className?: string;
   value?: Date;
   onChange?: (date: Date) => void;
+  label?: string;
 }
 
 export function DatePickerInput({
@@ -16,44 +18,55 @@ export function DatePickerInput({
   error,
   value,
   onChange,
+  label = 'Data',
 }: DatePickerInputProps) {
-  const [selectedDate, setSelectedDate] = useState(value ?? new Date());
-
-  function handleChangeDate(date: Date) {
-    setSelectedDate(date);
-    onChange?.(date);
-  }
+  const [open, setOpen] = useState(false);
+  const selectedDate = value ?? new Date();
 
   return (
     <div>
-      <Popover.Root>
-        <Popover.Trigger>
+      <RadixPopover.Root open={open} onOpenChange={setOpen}>
+        <RadixPopover.Trigger asChild>
           <button
             type="button"
+            aria-invalid={!!error || undefined}
             className={cn(
-              'bg-white w-full rounded-lg border border-gray-500 px-3 h-[52px] text-gray-700 focus:border-gray-800 transition-all outline-none text-left relative pt-4',
+              'relative h-[52px] w-full rounded-2xl border border-border bg-card px-3.5 pt-4 text-left text-fg outline-none transition-[border-color,box-shadow]',
+              'focus-visible:ring-4 focus-visible:ring-ring',
+              error && 'border-expense!',
               className,
-              error && '!border-red-900'
             )}
           >
-            <span className="text-gray-700 text-xs left-[13px] top-2 pointer-events-none absolute">
-              Data
+            <span className="pointer-events-none absolute top-2 left-3.5 text-xs text-muted">
+              {label}
             </span>
-            <span>{formatDate(selectedDate)}</span>
+            <span className="money">{formatDate(selectedDate)}</span>
+            <CalendarDays
+              size={18}
+              aria-hidden
+              className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted"
+            />
           </button>
-        </Popover.Trigger>
+        </RadixPopover.Trigger>
 
-        <Popover.Content>
-          <DatePicker value={selectedDate} onChange={handleChangeDate} />
-        </Popover.Content>
-      </Popover.Root>
+        <RadixPopover.Portal>
+          <RadixPopover.Content
+            sideOffset={6}
+            align="start"
+            className="z-[95] rounded-2xl border border-border bg-card-elevated p-3 shadow-float data-[side=bottom]:animate-slide-up-and-fade data-[side=top]:animate-slide-down-and-fade"
+          >
+            <DatePicker
+              value={selectedDate}
+              onChange={(date) => {
+                onChange?.(date);
+                setOpen(false);
+              }}
+            />
+          </RadixPopover.Content>
+        </RadixPopover.Portal>
+      </RadixPopover.Root>
 
-      {error && (
-        <div className="flex items-center gap-2 mt-2 text-red-900">
-          <CrossCircledIcon />
-          <span className="text-xs">{error}</span>
-        </div>
-      )}
+      <FieldError message={error} />
     </div>
   );
 }
