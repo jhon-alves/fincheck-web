@@ -9,6 +9,13 @@ export type MonthTotals = {
 };
 
 export type DashboardSummary = {
+  /** Jan–dez do ano do mês pedido, com a mesma regra dos KPIs do mês. */
+  yearTotals: {
+    year: number;
+    income: number;
+    expense: number;
+    balance: number;
+  };
   totalBalance: number;
   current: MonthTotals;
   previous: MonthTotals;
