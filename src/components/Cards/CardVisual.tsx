@@ -140,7 +140,8 @@ export function CardVisual({
     <div
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      className={cn('@container aspect-[1.586/1] w-full [perspective:1200px]', className)}
+      // text-left: dentro de um <button> (lista de cartões) o navegador centraliza o texto.
+      className={cn('@container aspect-[1.586/1] w-full text-left [perspective:1200px]', className)}
     >
       <motion.div
         style={canTilt ? { rotateX, rotateY, transformStyle: 'preserve-3d' } : undefined}
