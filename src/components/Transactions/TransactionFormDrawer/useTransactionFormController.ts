@@ -181,9 +181,10 @@ export function useTransactionFormController(
   // Parcelas e ocorrências recorrentes perguntam o escopo antes de salvar.
   const isInstallmentGroup = !!editing?.installmentGroupId || !!editing?.recurringRuleId;
 
-  const { accounts } = useBankAccounts();
-  const { categories } = useCategories();
-  const { activeCards, cards } = useCards();
+  // Só nomes e dias: não precisa buscar de novo a cada lançamento.
+  const { accounts } = useBankAccounts({ refetchOnMount: false });
+  const { categories } = useCategories({ refetchOnMount: false });
+  const { activeCards, cards } = useCards({ refetchOnMount: false });
   const invalidateFinance = useInvalidateFinance();
   const [isScopeDialogOpen, setIsScopeDialogOpen] = useState(false);
   const [pendingData, setPendingData] = useState<TransactionFormData | null>(null);
@@ -361,7 +362,6 @@ export function useTransactionFormController(
         }
       }
 
-      await invalidateFinance();
       toast.success(
         editing
           ? 'Lançamento atualizado!'
@@ -375,6 +375,8 @@ export function useTransactionFormController(
       );
       setIsScopeDialogOpen(false);
       onClose();
+      // Fecha na hora: a lista atualiza em segundo plano.
+      void invalidateFinance();
     } catch {
       toast.error(editing ? 'Não foi possível salvar o lançamento' : 'Não foi possível criar o lançamento');
     }

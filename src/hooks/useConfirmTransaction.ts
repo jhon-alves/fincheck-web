@@ -53,6 +53,9 @@ export function useConfirmTransaction() {
             : 'Pagamento confirmado',
       );
     },
-    onSettled: () => invalidateFinance(),
+    // Sem `return`: a mutation termina na hora e a atualização roda por trás.
+    onSettled: () => {
+      void invalidateFinance();
+    },
   });
 }

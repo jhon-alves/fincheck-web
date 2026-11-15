@@ -111,12 +111,12 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
   async function handleDelete(scope: InstallmentScope = 'one') {
     try {
       await remove(scope);
-      await invalidateFinance();
       toast.success(
         scope === 'one' ? 'Lançamento excluído' : scope === 'all' ? 'Parcelamento excluído' : 'Parcelas excluídas',
       );
       setIsConfirmingDelete(false);
       closeTransactionDetail();
+      void invalidateFinance();
     } catch {
       toast.error('Não foi possível excluir o lançamento');
     }

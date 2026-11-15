@@ -47,7 +47,7 @@ export function useNewAccountController() {
         initialBalance: currencyStringToNumber(data.initialBalance),
       });
 
-      invalidateFinance();
+      void invalidateFinance({ refetch: ['bankAccounts'] });
       toast.success('Conta cadastrada com sucesso!');
       closeNewAccountModal();
       reset();

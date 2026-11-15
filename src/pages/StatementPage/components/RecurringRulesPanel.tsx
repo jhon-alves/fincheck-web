@@ -89,7 +89,7 @@ export function RecurringRulesPanel() {
   async function handleStatus(rule: RecurringRule, action: 'end' | 'pause' | 'resume') {
     try {
       await changeStatus({ ruleId: rule.id, action });
-      await invalidateFinance();
+      void invalidateFinance();
       toast.success(
         action === 'pause' ? 'Recorrência pausada' : action === 'resume' ? 'Recorrência reativada' : 'Recorrência encerrada',
       );
@@ -102,7 +102,7 @@ export function RecurringRulesPanel() {
   async function handleDelete(rule: RecurringRule) {
     try {
       await removeRule(rule.id);
-      await invalidateFinance();
+      void invalidateFinance();
       toast.success('Recorrência excluída');
       setPending(null);
     } catch (error) {

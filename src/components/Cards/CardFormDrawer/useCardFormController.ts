@@ -111,7 +111,7 @@ function defaultValues(card: Card | null): CardFormData {
 export function useCardFormController(card: Card | null, onClose: () => void) {
   const isEditing = !!card;
   const queryClient = useQueryClient();
-  const { accounts } = useBankAccounts();
+  const { accounts } = useBankAccounts({ refetchOnMount: false });
   // Enquanto o usuário não escolher uma cor, ela acompanha a bandeira detectada.
   const [isColorTouched, setIsColorTouched] = useState(isEditing);
 

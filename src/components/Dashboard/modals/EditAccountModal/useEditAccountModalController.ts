@@ -57,7 +57,7 @@ export function useEditAccountController() {
         id: accountBeingEdited!.id,
       });
 
-      invalidateFinance();
+      void invalidateFinance({ refetch: ['bankAccounts'] });
       toast.success('Conta editada com sucesso!');
       closeEditAccountModal();
     } catch {
@@ -77,7 +77,7 @@ export function useEditAccountController() {
     try {
       await removeAccount(accountBeingEdited!.id);
 
-      invalidateFinance();
+      void invalidateFinance({ refetch: ['bankAccounts'] });
       toast.success('Conta removida com sucesso!');
       closeEditAccountModal();
     } catch {

@@ -82,7 +82,7 @@ Rotas: `/` (Home), `/extrato`, `/calendario`, `/cartoes`, `/contas`, `/categoria
 
 1. `services/*-services.ts` chama a API pelo `httpClient` (axios com `baseURL = VITE_API_URL` e o header `Authorization: Bearer` lido de `localStorage['@token']`).
 2. `hooks/use*.ts` envolve os services em `useQuery`/`useMutation`. **Todas as query keys ficam em `hooks/queryKeys.ts`.** A primeira posição é o domínio: invalidar `['transactions']` alcança todas as listas filtradas.
-3. Depois de criar, editar, excluir ou confirmar lançamentos, chame `useInvalidateFinance()`. Ele invalida lançamentos, calendário, dashboard, cartões, contas, categorias e regras recorrentes, porque tudo depende dos lançamentos.
+3. Depois de criar, editar, excluir ou confirmar lançamentos, chame `void invalidateFinance()` **sem `await`**: feche o drawer e mostre o toast antes, e a lista atualiza por trás. Só o que a página atual mostra é buscado de novo. Lançamentos, calendário, dashboard e recorrências recarregam se estiverem na tela. Contas, cartões e categorias só recarregam na página que mostra os números delas (Contas, Cartões, Categorias); nas outras ficam marcadas como velhas. Telas que só usam os nomes dessas listas passam `{ refetchOnMount: false }` para `useBankAccounts`, `useCards` e `useCategories`. Quando a própria lista muda (conta nova ou renomeada), use `invalidateFinance({ refetch: ['bankAccounts'] })`.
 4. Listas que mudam com o mês (`useTransactions`, `useCalendar`, `useDashboardSummary`) usam `placeholderData: keepPreviousData`. Enquanto o mês novo carrega, a tela continua mostrando o anterior, e o `MonthSelector` mostra um spinner (`useIsFetching`).
 
 Estado global de UI fica no `DashboardContext` (`components/Dashboard/DashboardContext`):

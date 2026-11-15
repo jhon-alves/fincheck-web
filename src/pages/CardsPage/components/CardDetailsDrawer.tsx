@@ -108,8 +108,8 @@ function CardDetails({
   async function handleToggleArchive() {
     try {
       await toggleArchive();
-      await invalidateFinance();
       toast.success(card.archived ? 'Cartão reativado' : 'Cartão arquivado');
+      void invalidateFinance();
     } catch {
       toast.error('Não foi possível atualizar o cartão');
     }
@@ -118,10 +118,10 @@ function CardDetails({
   async function handleDelete() {
     try {
       await removeCard();
-      await invalidateFinance();
       toast.success('Cartão excluído');
       setIsConfirmingDelete(false);
       onClose();
+      void invalidateFinance();
     } catch {
       toast.error('Não foi possível excluir o cartão');
     }
