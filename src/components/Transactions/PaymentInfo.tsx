@@ -11,7 +11,7 @@ export function PaymentInfo({
 }: {
   transaction: Transaction;
   className?: string;
-  /** Mostra também o nome do cartão/conta. */
+  /** Mostra também o nome do cartão. Pix e dinheiro sempre mostram a conta. */
   detailed?: boolean;
 }) {
   const { card, paymentMethod, bankAccount, toBankAccount, type } = transaction;
@@ -43,7 +43,7 @@ export function PaymentInfo({
       <span className="truncate">
         {paymentMethod === 'ACCOUNT'
           ? (bankAccount?.name ?? paymentMethodLabels.ACCOUNT)
-          : `${paymentMethodLabels[paymentMethod]}${detailed && bankAccount ? ` · ${bankAccount.name}` : ''}`}
+          : `${paymentMethodLabels[paymentMethod]}${bankAccount ? ` · ${bankAccount.name}` : ''}`}
       </span>
     </span>
   );
