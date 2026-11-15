@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useMutation } from '@tanstack/react-query';
-import { Archive, ArchiveRestore, Pencil, ReceiptText, Trash2 } from 'lucide-react';
+import {
+  Archive,
+  ArchiveRestore,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  ReceiptText,
+  Trash2,
+} from 'lucide-react';
 import {
   CardLimitBar,
   CardVisual,
@@ -30,10 +38,10 @@ import {
 } from '../../../components/Shared';
 import { TransactionRow } from '../../../components/Transactions';
 import { useDashboard } from '../../../components/Dashboard';
-import { cn, formatDate, formatMonthYear, fromApiDate, formatDayHeading } from '../../../helpers';
+import { formatDate, formatMonthYear, fromApiDate, formatDayHeading, toApiDate } from '../../../helpers';
 import { useCardInvoice, useInvalidateFinance, useTransactions } from '../../../hooks';
 import { cardsServices } from '../../../services/cards-services';
-import type { Card } from '../../../types/cards-types';
+import type { Card, CardInvoice, InvoiceRef } from '../../../types/cards-types';
 
 interface CardDetailsDrawerProps {
   open: boolean;
@@ -76,22 +84,29 @@ function CardDetails({
 
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const isCredit = card.kind === 'CREDIT';
+  const today = toApiDate(new Date());
 
-  const { transactions: monthTransactions, isInitialLoading } = useTransactions({
-    month: selectedMonth.month,
-    year: selectedMonth.year,
-    cardId: card.id,
-  });
-  // Pagamentos de fatura também têm o cartão, mas não são compras: aparecem na
-  // seção da fatura, não na lista nem no total do mês.
-  const transactions = monthTransactions.filter((t) => t.type !== 'INVOICE_PAYMENT');
+  // Crédito: abre na fatura atual (a que recebe as compras de hoje) e navega
+  // de fatura em fatura. Débito: lançamentos do mês do header.
+  const [invoiceRef, setInvoiceRef] = useState<InvoiceRef>({ purchaseDate: today });
+  const isCurrentInvoice = 'purchaseDate' in invoiceRef;
+  const { invoice, isLoading: isLoadingInvoice } = useCardInvoice(card.id, invoiceRef, isCredit);
+
+  const { transactions: cardTransactions, isInitialLoading } = useTransactions(
+    isCredit
+      ? { cardId: card.id, from: invoice?.periodStart, to: invoice?.periodEnd }
+      : { cardId: card.id, month: selectedMonth.month, year: selectedMonth.year },
+    !isCredit || !!invoice,
+  );
+  // Pagamentos de fatura também têm o cartão, mas não são compras.
+  const transactions = cardTransactions.filter((t) => t.type !== 'INVOICE_PAYMENT');
   const monthTotal = transactions.reduce((total, t) => total + t.value, 0);
 
-  // A fatura que vence no mês selecionado no header.
-  const invoiceRef = {
-    dueDate: `${selectedMonth.year}-${String(selectedMonth.month + 1).padStart(2, '0')}-01`,
-  };
-  const { invoice, isLoading: isLoadingInvoice } = useCardInvoice(card.id, invoiceRef, isCredit);
+  function goToInvoice(delta: number) {
+    if (!invoice) return;
+    const [year, month] = invoice.dueDate.split('-').map(Number);
+    setInvoiceRef({ dueDate: toApiDate(new Date(year, month - 1 + delta, 1)) });
+  }
   const monthLabel = formatMonthYear(new Date(selectedMonth.year, selectedMonth.month, 1));
 
   const { mutateAsync: toggleArchive, isPending: isArchiving } = useMutation({
@@ -193,54 +208,56 @@ function CardDetails({
         )}
 
         {isCredit && (
-          <DrawerSection title={`Fatura de ${monthLabel}`}>
-            {isLoadingInvoice || !invoice ? (
-              <div className="skeleton h-[92px]" />
-            ) : (
-              <div className="flex items-center gap-3 rounded-2xl border border-border p-4">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted">
-                    Vence {formatDate(fromApiDate(invoice.dueDate))} · fecha{' '}
-                    {formatDate(fromApiDate(invoice.closingDate))}
-                  </p>
-                  <Money
-                    value={invoice.total}
-                    className="mt-0.5 block text-2xl font-semibold tracking-tight text-fg"
-                  />
-                  <p
-                    className={cn(
-                      'mt-0.5 text-xs font-medium',
-                      invoice.total === 0
-                        ? 'text-muted'
-                        : invoice.pendingTotal === 0
-                          ? 'text-income-strong'
-                          : 'text-warning-strong',
-                    )}
-                  >
-                    {invoice.total === 0 ? (
-                      'Sem compras nesta fatura'
-                    ) : invoice.pendingTotal === 0 ? (
-                      'Paga'
-                    ) : invoice.paidTotal > 0 ? (
-                      <>
-                        Falta pagar <Money value={invoice.pendingTotal} />
-                      </>
-                    ) : (
-                      'Em aberto'
-                    )}
-                  </p>
-                </div>
-                {invoice.total > 0 && (
-                  <Button
-                    size="sm"
-                    variant={invoice.pendingTotal > 0 ? 'primary' : 'secondary'}
-                    onClick={() => setIsInvoiceOpen(true)}
-                  >
-                    {invoice.pendingTotal > 0 ? 'Pagar fatura' : 'Ver pagamento'}
+          <DrawerSection
+            title={invoice ? `Fatura de ${formatMonthYear(fromApiDate(invoice.dueDate))}` : 'Fatura'}
+            action={
+              <div className="flex items-center gap-1">
+                {!isCurrentInvoice && (
+                  <Button size="sm" variant="ghost" onClick={() => setInvoiceRef({ purchaseDate: today })}>
+                    Atual
                   </Button>
                 )}
+                <IconButton size="sm" aria-label="Fatura anterior" onClick={() => goToInvoice(-1)}>
+                  <ChevronLeft size={16} />
+                </IconButton>
+                <IconButton size="sm" aria-label="Próxima fatura" onClick={() => goToInvoice(1)}>
+                  <ChevronRight size={16} />
+                </IconButton>
               </div>
+            }
+          >
+            {isLoadingInvoice || !invoice ? (
+              <div className="skeleton h-[104px]" />
+            ) : (
+              <InvoiceSummary
+                invoice={invoice}
+                today={today}
+                onPay={() => setIsInvoiceOpen(true)}
+              />
             )}
+
+            <div className="mt-3">
+              {isInitialLoading && (
+                <div className="space-y-2">
+                  {Array.from({ length: 3 }, (_, i) => (
+                    <div key={i} className="skeleton h-14" />
+                  ))}
+                </div>
+              )}
+              {!isInitialLoading && invoice && transactions.length === 0 && (
+                <p className="py-4 text-center text-sm text-muted">Nenhuma compra nesta fatura.</p>
+              )}
+              <div className="-mx-3 space-y-0.5">
+                {transactions.map((transaction) => (
+                  <TransactionRow
+                    key={transaction.id}
+                    transaction={transaction}
+                    dateLabel={formatDayHeading(fromApiDate(transaction.date))}
+                    onClick={openTransactionDetail}
+                  />
+                ))}
+              </div>
+            </div>
           </DrawerSection>
         )}
 
@@ -269,40 +286,42 @@ function CardDetails({
           </dl>
         </DrawerSection>
 
-        <DrawerSection
-          title={`Lançamentos de ${monthLabel}`}
-          action={
-            transactions.length > 0 && (
-              <Money value={monthTotal} className="text-sm font-semibold text-fg" />
-            )
-          }
-        >
-          {isInitialLoading && (
-            <div className="space-y-2">
-              {Array.from({ length: 3 }, (_, i) => (
-                <div key={i} className="skeleton h-14" />
+        {!isCredit && (
+          <DrawerSection
+            title={`Lançamentos de ${monthLabel}`}
+            action={
+              transactions.length > 0 && (
+                <Money value={monthTotal} className="text-sm font-semibold text-fg" />
+              )
+            }
+          >
+            {isInitialLoading && (
+              <div className="space-y-2">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <div key={i} className="skeleton h-14" />
+                ))}
+              </div>
+            )}
+            {!isInitialLoading && transactions.length === 0 && (
+              <EmptyState
+                className="py-6"
+                icon={<ReceiptText size={24} />}
+                title="Nada neste mês"
+                description="Os lançamentos feitos com este cartão aparecem aqui."
+              />
+            )}
+            <div className="-mx-3 space-y-0.5">
+              {transactions.map((transaction) => (
+                <TransactionRow
+                  key={transaction.id}
+                  transaction={transaction}
+                  dateLabel={formatDayHeading(fromApiDate(transaction.date))}
+                  onClick={openTransactionDetail}
+                />
               ))}
             </div>
-          )}
-          {!isInitialLoading && transactions.length === 0 && (
-            <EmptyState
-              className="py-6"
-              icon={<ReceiptText size={24} />}
-              title="Nada neste mês"
-              description="Os lançamentos feitos com este cartão aparecem aqui."
-            />
-          )}
-          <div className="-mx-3 space-y-0.5">
-            {transactions.map((transaction) => (
-              <TransactionRow
-                key={transaction.id}
-                transaction={transaction}
-                dateLabel={formatDayHeading(fromApiDate(transaction.date))}
-                onClick={openTransactionDetail}
-              />
-            ))}
-          </div>
-        </DrawerSection>
+          </DrawerSection>
+        )}
       </DrawerBody>
 
       <DrawerFooter className="justify-between">
@@ -345,5 +364,65 @@ function CardDetails({
         />
       )}
     </>
+  );
+}
+
+/**
+ * Status da fatura: aberta até o dia do fechamento (ainda recebe compras),
+ * fechada depois disso enquanto não é paga, e paga quando não sobra nada.
+ */
+function invoiceStatus(invoice: CardInvoice, today: string) {
+  if (today < invoice.closingDate) {
+    return { label: 'Aberta', tone: 'primary' as const };
+  }
+  if (invoice.total === 0) {
+    return { label: 'Sem compras', tone: 'neutral' as const };
+  }
+  if (invoice.pendingTotal === 0) {
+    return { label: 'Paga', tone: 'income' as const };
+  }
+  return { label: 'Fechada', tone: 'warning' as const };
+}
+
+function InvoiceSummary({
+  invoice,
+  today,
+  onPay,
+}: {
+  invoice: CardInvoice;
+  today: string;
+  onPay: () => void;
+}) {
+  const status = invoiceStatus(invoice, today);
+  const closing = formatDate(fromApiDate(invoice.closingDate));
+  const due = formatDate(fromApiDate(invoice.dueDate));
+  const isOpen = status.label === 'Aberta';
+
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-border p-4">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <Badge tone={status.tone}>{status.label}</Badge>
+          <span className="truncate text-xs text-muted">
+            {isOpen ? `fecha ${closing}` : `fechou ${closing}`} · vence {due}
+          </span>
+        </div>
+        <Money value={invoice.total} className="mt-1.5 block text-2xl font-semibold tracking-tight text-fg" />
+        {invoice.pendingTotal > 0 && invoice.paidTotal > 0 && (
+          <p className="mt-0.5 text-xs font-medium text-warning-strong">
+            Falta pagar <Money value={invoice.pendingTotal} />
+          </p>
+        )}
+      </div>
+      {invoice.total > 0 && (
+        <Button
+          size="sm"
+          variant={invoice.pendingTotal > 0 && !isOpen ? 'primary' : 'secondary'}
+          onClick={onPay}
+        >
+          {invoice.pendingTotal > 0 ? 'Pagar fatura' : 'Ver pagamento'}
+        </Button>
+      )}
+    </div>
   );
 }

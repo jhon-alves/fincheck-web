@@ -31,7 +31,10 @@ export const TransactionRow = memo(function TransactionRow({
   className,
 }: TransactionRowProps) {
   const { type, name, value, paid, installmentNumber, installmentsTotal, category } = transaction;
-  const isPending = !paid;
+  // Compra no crédito não é paga sozinha: ela faz parte da fatura, que tem o
+  // próprio status (aberta, fechada, paga). Por isso não mostra "Pendente".
+  const isCreditPurchase = transaction.paymentMethod === 'CREDIT_CARD' && type === 'EXPENSE';
+  const isPending = !paid && !isCreditPurchase;
   const isRecurring = !!transaction.recurringRuleId;
   // Crédito é pago pela fatura, não pelo "Confirmar".
   const canConfirm =
@@ -96,15 +99,17 @@ export const TransactionRow = memo(function TransactionRow({
             sign={amountSign[type]}
             className={cn('font-semibold', amountToneClass[type], isPending && 'opacity-70')}
           />
-          <span
-            className={cn(
-              'inline-flex items-center gap-1 text-[11px] font-medium',
-              isPending ? 'text-warning-strong' : 'text-muted',
-            )}
-          >
-            {isPending && <Clock3 size={11} aria-hidden />}
-            {isRecurring && !paid ? 'Previsto' : paidLabel(type, paid)}
-          </span>
+          {!isCreditPurchase && (
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 text-[11px] font-medium',
+                isPending ? 'text-warning-strong' : 'text-muted',
+              )}
+            >
+              {isPending && <Clock3 size={11} aria-hidden />}
+              {isRecurring && !paid ? 'Previsto' : paidLabel(type, paid)}
+            </span>
+          )}
         </div>
       </button>
       {canConfirm && <ConfirmButton transaction={transaction} className="mr-2" />}

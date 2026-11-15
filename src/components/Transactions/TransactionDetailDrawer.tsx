@@ -162,10 +162,18 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
               className={cn('text-3xl font-semibold tracking-tight', amountToneClass[transaction.type])}
             />
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              <Badge tone={isPaid ? 'income' : 'warning'}>
-                {isPaid ? <Check size={11} /> : <Clock3 size={11} />}
-                {isRecurring && !isPaid ? 'Previsto' : paidLabel(transaction.type, isPaid)}
-              </Badge>
+              {isCreditPurchase ? (
+                // O status é da fatura, não da compra.
+                <Badge tone={isPaid ? 'income' : 'neutral'}>
+                  {isPaid ? <Check size={11} /> : <ReceiptText size={11} />}
+                  {isPaid ? 'Fatura paga' : 'Na fatura'}
+                </Badge>
+              ) : (
+                <Badge tone={isPaid ? 'income' : 'warning'}>
+                  {isPaid ? <Check size={11} /> : <Clock3 size={11} />}
+                  {isRecurring && !isPaid ? 'Previsto' : paidLabel(transaction.type, isPaid)}
+                </Badge>
+              )}
               {isGroup && (
                 <Badge tone="neutral" className="money">
                   Parcela {transaction.installmentNumber} de {transaction.installmentsTotal}
