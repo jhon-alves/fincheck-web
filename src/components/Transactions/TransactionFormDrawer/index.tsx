@@ -35,6 +35,7 @@ import {
   EXPENSE_METHODS,
   INCOME_METHODS,
   useTransactionFormController,
+  type EntryMode,
 } from './useTransactionFormController';
 
 const ACCENTS: Record<TransactionType, string> = {
@@ -109,6 +110,8 @@ function TransactionForm({
     isCardMethod,
     canInstall,
     canRecur,
+    entryMode,
+    changeEntryMode,
     recurrencePreview,
     installmentPlan,
     accounts,
@@ -133,9 +136,27 @@ function TransactionForm({
       ? 'Valor total da compra'
       : 'Valor';
 
+  const isCredit = values.paymentMethod === 'CREDIT_CARD';
+
+  const entryModeOptions: SegmentedOption<EntryMode>[] = [
+    { value: 'single', label: 'Uma vez' },
+    ...(canInstall ? [{ value: 'installments' as const, label: 'Parcelado' }] : []),
+    { value: 'recurring', label: 'Recorrente' },
+  ];
+
+  const entryModeHint = {
+    single: 'Lança uma vez só.',
+    installments: 'Divide o valor total em parcelas mensais no cartão.',
+    recurring: canInstall
+      ? 'Repete o mesmo valor, como assinaturas e contas fixas. Para dividir uma compra, use Parcelado.'
+      : 'Repete o mesmo valor, como salário, assinaturas e contas fixas.',
+  }[entryMode];
+
   const paidLabel = values.isRecurring && canRecur
     ? isExpense
-      ? 'A primeira já foi paga'
+      ? isCredit
+        ? 'A 1ª cobrança já foi paga na fatura'
+        : 'A primeira já foi paga'
       : 'A primeira já foi recebida'
     : isExpense
     ? values.paymentMethod === 'CREDIT_CARD'
@@ -426,25 +447,18 @@ function TransactionForm({
             </fieldset>
           )}
 
-          {canRecur && !values.isInstallment && (
+          {canRecur && (
             <div className="space-y-3 rounded-2xl border border-border p-4">
-              <div className="flex items-center justify-between gap-3">
-                <label htmlFor="is-recurring" className="flex items-center gap-2 text-sm font-semibold text-fg">
-                  <Repeat size={16} className="text-transfer-strong" aria-hidden />
-                  Repetir (recorrente)
-                </label>
-                <Controller
-                  control={control}
-                  name="isRecurring"
-                  render={({ field }) => (
-                    <Switch
-                      id="is-recurring"
-                      checked={field.value}
-                      onChange={field.onChange}
-                      aria-label="Repetir este lançamento"
-                    />
-                  )}
+              <div className="space-y-2">
+                <span className="text-sm font-semibold text-fg">Como lançar</span>
+                <SegmentedControl<EntryMode>
+                  aria-label="Como lançar"
+                  size="sm"
+                  value={entryMode}
+                  onChange={changeEntryMode}
+                  options={entryModeOptions}
                 />
+                <p className="text-xs text-muted">{entryModeHint}</p>
               </div>
 
               <AnimatePresence initial={false}>
@@ -585,23 +599,26 @@ function TransactionForm({
                       )}
                     </div>
 
-                    <Controller
-                      control={control}
-                      name="autoConfirm"
-                      render={({ field }) => (
-                        <div className="flex items-center justify-between gap-3">
-                          <label htmlFor="auto-confirm" className="text-sm text-fg-soft">
-                            Confirmar sozinho quando a data chegar
-                          </label>
-                          <Switch
-                            id="auto-confirm"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            aria-label="Confirmar sozinho quando a data chegar"
-                          />
-                        </div>
-                      )}
-                    />
+                    {/* No crédito, "pago" é fatura paga: a data chegar não confirma nada. */}
+                    {!isCredit && (
+                      <Controller
+                        control={control}
+                        name="autoConfirm"
+                        render={({ field }) => (
+                          <div className="flex items-center justify-between gap-3">
+                            <label htmlFor="auto-confirm" className="text-sm text-fg-soft">
+                              Confirmar sozinho quando a data chegar
+                            </label>
+                            <Switch
+                              id="auto-confirm"
+                              checked={field.value}
+                              onChange={field.onChange}
+                              aria-label="Confirmar sozinho quando a data chegar"
+                            />
+                          </div>
+                        )}
+                      />
+                    )}
 
                     {recurrencePreview.length > 0 && (
                       <div className="rounded-xl bg-subtle p-3 text-sm" aria-live="polite">
@@ -619,139 +636,141 @@ function TransactionForm({
                         <p className="mt-1 text-xs text-muted">
                           Próximas: {recurrencePreview.map((date) => formatDate(date)).join(' · ')}
                         </p>
+                        {amount > 0 && (
+                          <p className="mt-1 text-xs text-muted">
+                            {values.endMode === 'count' ? (
+                              <>
+                                {values.maxOccurrences}{' '}
+                                {values.maxOccurrences === 1 ? 'lançamento' : 'lançamentos'} de{' '}
+                                <Money value={amount} alwaysVisible /> ={' '}
+                                <Money
+                                  value={amount * values.maxOccurrences}
+                                  alwaysVisible
+                                  className="font-semibold text-fg"
+                                />{' '}
+                                no total
+                              </>
+                            ) : (
+                              <>
+                                Cada lançamento vale <Money value={amount} alwaysVisible /> (o valor se
+                                repete, não é dividido)
+                              </>
+                            )}
+                          </p>
+                        )}
                         <p className="mt-1 text-xs text-muted">
-                          As futuras ficam como previstas e não mexem no saldo até você confirmar.
+                          {isCredit
+                            ? 'No cartão, cada cobrança fica pendente até a fatura ser paga.'
+                            : 'As futuras ficam como previstas e não mexem no saldo até você confirmar.'}
                         </p>
                       </div>
+                    )}
+                  </motion.div>
+                )}
+                {entryMode === 'installments' && (
+                  <motion.div
+                    key="installments"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    className="-m-1 space-y-3 overflow-hidden p-1"
+                  >
+                    <Controller
+                      control={control}
+                      name="installments"
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            aria-label="Menos uma parcela"
+                            disabled={field.value <= 2}
+                            onClick={() => field.onChange(field.value - 1)}
+                            className="grid size-10 place-items-center rounded-full border border-border text-fg-soft hover:bg-subtle disabled:opacity-40"
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            min={2}
+                            max={48}
+                            aria-label="Quantidade de parcelas"
+                            value={field.value}
+                            onChange={(event) => {
+                              const next = Math.round(Number(event.target.value));
+                              if (Number.isFinite(next)) field.onChange(Math.min(48, Math.max(2, next)));
+                            }}
+                            className="money h-10 w-16 rounded-xl border border-border bg-card text-center text-lg font-semibold text-fg outline-none focus-visible:ring-4 focus-visible:ring-ring"
+                          />
+                          <span className="text-sm text-muted">x</span>
+                          <button
+                            type="button"
+                            aria-label="Mais uma parcela"
+                            disabled={field.value >= 48}
+                            onClick={() => field.onChange(field.value + 1)}
+                            className="grid size-10 place-items-center rounded-full border border-border text-fg-soft hover:bg-subtle disabled:opacity-40"
+                          >
+                            <Plus size={16} />
+                          </button>
+                          <div className="ml-auto flex gap-1">
+                            {[3, 6, 10, 12].map((count) => (
+                              <button
+                                key={count}
+                                type="button"
+                                onClick={() => field.onChange(count)}
+                                className={cn(
+                                  'h-8 rounded-lg px-2 text-xs font-semibold transition-colors',
+                                  field.value === count ? 'bg-fg text-card' : 'text-fg-soft hover:bg-subtle',
+                                )}
+                              >
+                                {count}x
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    />
+                    <FieldError message={errors.installments?.message} />
+
+                    {installmentPlan ? (
+                      <div className="rounded-xl bg-subtle p-3 text-sm" aria-live="polite">
+                        <p className="font-semibold text-fg">
+                          {installmentPlan.length}x de{' '}
+                          <Money value={installmentPlan[0].value} alwaysVisible />
+                          {installmentPlan[installmentPlan.length - 1].value !== installmentPlan[0].value && (
+                            <span className="font-normal text-muted">
+                              {' '}
+                              (última <Money value={installmentPlan[installmentPlan.length - 1].value} alwaysVisible />)
+                            </span>
+                          )}
+                          <span className="font-normal text-muted">
+                            {' '}
+                            · última parcela em {formatShortMonthYear(installmentPlan[installmentPlan.length - 1].date)}
+                          </span>
+                        </p>
+                        <ol className="mt-2 space-y-1 text-xs text-muted">
+                          {installmentPlan.slice(0, 4).map((installment) => (
+                            <li key={installment.number} className="flex justify-between gap-2">
+                              <span>
+                                {installment.number}ª parcela · {formatDate(installment.date)}
+                              </span>
+                              <Money value={installment.value} alwaysVisible className="text-fg-soft" />
+                            </li>
+                          ))}
+                          {installmentPlan.length > 4 && (
+                            <li>+ {installmentPlan.length - 4} parcelas nos meses seguintes</li>
+                          )}
+                        </ol>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted">Informe o valor para ver as parcelas.</p>
                     )}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           )}
-
-          <AnimatePresence initial={false}>
-            {canInstall && (
-              <motion.div
-                key="installments"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="space-y-3 rounded-2xl border border-border p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <label htmlFor="is-installment" className="text-sm font-semibold text-fg">
-                      Parcelar?
-                    </label>
-                    <Controller
-                      control={control}
-                      name="isInstallment"
-                      render={({ field }) => (
-                        <Switch id="is-installment" checked={field.value} onChange={field.onChange} aria-label="Parcelar" />
-                      )}
-                    />
-                  </div>
-
-                  {values.isInstallment && (
-                    <>
-                      <Controller
-                        control={control}
-                        name="installments"
-                        render={({ field }) => (
-                          <div className="flex items-center gap-3">
-                            <button
-                              type="button"
-                              aria-label="Menos uma parcela"
-                              disabled={field.value <= 2}
-                              onClick={() => field.onChange(field.value - 1)}
-                              className="grid size-10 place-items-center rounded-full border border-border text-fg-soft hover:bg-subtle disabled:opacity-40"
-                            >
-                              <Minus size={16} />
-                            </button>
-                            <input
-                              type="number"
-                              inputMode="numeric"
-                              min={2}
-                              max={48}
-                              aria-label="Quantidade de parcelas"
-                              value={field.value}
-                              onChange={(event) => {
-                                const next = Math.round(Number(event.target.value));
-                                if (Number.isFinite(next)) field.onChange(Math.min(48, Math.max(2, next)));
-                              }}
-                              className="money h-10 w-16 rounded-xl border border-border bg-card text-center text-lg font-semibold text-fg outline-none focus-visible:ring-4 focus-visible:ring-ring"
-                            />
-                            <span className="text-sm text-muted">x</span>
-                            <button
-                              type="button"
-                              aria-label="Mais uma parcela"
-                              disabled={field.value >= 48}
-                              onClick={() => field.onChange(field.value + 1)}
-                              className="grid size-10 place-items-center rounded-full border border-border text-fg-soft hover:bg-subtle disabled:opacity-40"
-                            >
-                              <Plus size={16} />
-                            </button>
-                            <div className="ml-auto flex gap-1">
-                              {[3, 6, 10, 12].map((count) => (
-                                <button
-                                  key={count}
-                                  type="button"
-                                  onClick={() => field.onChange(count)}
-                                  className={cn(
-                                    'h-8 rounded-lg px-2 text-xs font-semibold transition-colors',
-                                    field.value === count ? 'bg-fg text-card' : 'text-fg-soft hover:bg-subtle',
-                                  )}
-                                >
-                                  {count}x
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      />
-                      <FieldError message={errors.installments?.message} />
-
-                      {installmentPlan ? (
-                        <div className="rounded-xl bg-subtle p-3 text-sm" aria-live="polite">
-                          <p className="font-semibold text-fg">
-                            {installmentPlan.length}x de{' '}
-                            <Money value={installmentPlan[0].value} alwaysVisible />
-                            {installmentPlan[installmentPlan.length - 1].value !== installmentPlan[0].value && (
-                              <span className="font-normal text-muted">
-                                {' '}
-                                (última <Money value={installmentPlan[installmentPlan.length - 1].value} alwaysVisible />)
-                              </span>
-                            )}
-                            <span className="font-normal text-muted">
-                              {' '}
-                              · última parcela em {formatShortMonthYear(installmentPlan[installmentPlan.length - 1].date)}
-                            </span>
-                          </p>
-                          <ol className="mt-2 space-y-1 text-xs text-muted">
-                            {installmentPlan.slice(0, 4).map((installment) => (
-                              <li key={installment.number} className="flex justify-between gap-2">
-                                <span>
-                                  {installment.number}ª parcela · {formatDate(installment.date)}
-                                </span>
-                                <Money value={installment.value} alwaysVisible className="text-fg-soft" />
-                              </li>
-                            ))}
-                            {installmentPlan.length > 4 && (
-                              <li>+ {installmentPlan.length - 4} parcelas nos meses seguintes</li>
-                            )}
-                          </ol>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-muted">Informe o valor para ver as parcelas.</p>
-                      )}
-                    </>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {!isTransfer && (
             <Controller

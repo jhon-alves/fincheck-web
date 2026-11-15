@@ -119,6 +119,7 @@ Use essas funções em vez de criar drawers locais de lançamento.
 
 - React Hook Form + Zod 4. Mensagens customizadas usam `{ error: '...' }` (o `required_error` do Zod 3 não existe mais). Com o Zod 4, o `superRefine` roda junto com os erros de campo, então o formulário mostra todos os erros de uma vez. Para observar campos, use `useWatch({ name })` em vez de `form.watch()` (o lint reclama e re-renderiza demais).
 - Mensagens de erro da API: `apiErrorMessage(error, fallback)` em `helpers/apiError.ts`, exibidas com `toast.error`.
+- No formulário de lançamento, parcelar e repetir ficam num seletor só, "Como lançar" (`entryMode`: Uma vez / Parcelado / Recorrente). Não separe de novo em dois controles: "12x" (divide o valor) e "repetir 12 vezes" (multiplica o valor) já foram confundidos. A prévia da recorrência mostra o total, e no crédito não existe "confirmar sozinho".
 - Lançamento parcelado ou recorrente: editar ou excluir abre o `InstallmentScopeDialog` ("só esta", "esta e as próximas", "todas") e envia `?scope=` para a API.
 
 ### Cartões (segurança)
