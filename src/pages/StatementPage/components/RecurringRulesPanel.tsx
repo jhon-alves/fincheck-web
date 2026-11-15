@@ -45,7 +45,7 @@ function RulePayment({ rule }: { rule: RecurringRule }) {
   if (rule.card) {
     return (
       <span className="inline-flex items-center gap-1.5">
-        <MiniCard color={rule.card.color} brand={rule.card.brand} className="h-4 w-6 rounded-[3px] p-[2px] [&>span]:h-1.5" />
+        <MiniCard color={rule.card.color} brand={rule.card.brand} size="sm" />
         <span className="money">•••• {rule.card.lastDigits}</span>
       </span>
     );

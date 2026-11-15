@@ -71,7 +71,7 @@ export function UpcomingList({
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-1.5 truncate text-sm font-medium text-fg">
                   Fatura {item.invoice.cardName}
-                  <MiniCard color={item.invoice.color} brand={item.invoice.brand} className="h-4 w-6 rounded-[3px] p-[2px] [&>span]:h-1.5" />
+                  <MiniCard color={item.invoice.color} brand={item.invoice.brand} size="sm" />
                 </p>
                 <p className="text-xs text-muted">
                   vence {relative} · {formatDate(item.date)}

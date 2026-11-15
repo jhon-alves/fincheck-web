@@ -27,7 +27,7 @@ export function PaymentInfo({
   if (card) {
     return (
       <span className={cn('inline-flex min-w-0 items-center gap-1.5', className)}>
-        <MiniCard color={card.color} brand={card.brand} className="h-4 w-6 rounded-[3px] p-[2px] [&>span]:h-1.5" />
+        <MiniCard color={card.color} brand={card.brand} size="sm" />
         <span className="money truncate">
           {detailed ? `${card.name} · ` : ''}•••• {card.lastDigits}
         </span>

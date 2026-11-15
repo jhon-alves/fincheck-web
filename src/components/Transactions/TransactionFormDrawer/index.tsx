@@ -418,6 +418,7 @@ function TransactionForm({
                               ? `Fecha dia ${card.closingDay} · vence dia ${card.dueDay}`
                               : (card.bankAccount?.name ?? undefined),
                           icon: <MiniCard color={card.color} brand={card.brand} />,
+                          triggerIcon: <MiniCard color={card.color} brand={card.brand} size="sm" />,
                         }))}
                       />
                       {cardOptions.length === 0 && (
