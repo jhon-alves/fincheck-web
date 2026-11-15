@@ -1,6 +1,7 @@
 import {
   ArrowLeftRight,
   BriefcaseBusiness,
+  Building2,
   Bus,
   CircleDollarSign,
   Ellipsis,
@@ -25,6 +26,7 @@ const defaultCategoryIcons: Record<string, LucideIcon> = {
   home: House,
   food: UtensilsCrossed,
   education: GraduationCap,
+  company: Building2,
   fun: Popcorn,
   grocery: ShoppingCart,
   clothes: Shirt,
