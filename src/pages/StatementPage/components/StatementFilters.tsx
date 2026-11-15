@@ -145,7 +145,7 @@ export function ActiveFilterChips({ filters, onChange, onClear }: Omit<Statement
   if (filters.type) {
     chips.push({
       key: 'type',
-      label: { INCOME: 'Entradas', EXPENSE: 'Saídas', TRANSFER: 'Transferências' }[filters.type],
+      label: { INCOME: 'Entradas', EXPENSE: 'Saídas', TRANSFER: 'Transferências', INVOICE_PAYMENT: 'Faturas' }[filters.type],
     });
   }
   if (filters.paid !== undefined) {

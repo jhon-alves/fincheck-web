@@ -7,6 +7,7 @@ import {
   CardVisual,
   formatExpiry,
   isExpired,
+  PayInvoiceDialog,
   savedCardNumber,
 } from '../../../components/Cards';
 import { BrandLogo, brandLabels } from '../../../components/Icons/brands';
@@ -29,8 +30,8 @@ import {
 } from '../../../components/Shared';
 import { TransactionRow } from '../../../components/Transactions';
 import { useDashboard } from '../../../components/Dashboard';
-import { formatMonthYear, fromApiDate, formatDayHeading } from '../../../helpers';
-import { useInvalidateFinance, useTransactions } from '../../../hooks';
+import { cn, formatDate, formatMonthYear, fromApiDate, formatDayHeading } from '../../../helpers';
+import { useCardInvoice, useInvalidateFinance, useTransactions } from '../../../hooks';
 import { cardsServices } from '../../../services/cards-services';
 import type { Card } from '../../../types/cards-types';
 
@@ -73,12 +74,24 @@ function CardDetails({
   const invalidateFinance = useInvalidateFinance();
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  const { transactions, isInitialLoading } = useTransactions({
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+  const isCredit = card.kind === 'CREDIT';
+
+  const { transactions: monthTransactions, isInitialLoading } = useTransactions({
     month: selectedMonth.month,
     year: selectedMonth.year,
     cardId: card.id,
   });
+  // Pagamentos de fatura também têm o cartão, mas não são compras: aparecem na
+  // seção da fatura, não na lista nem no total do mês.
+  const transactions = monthTransactions.filter((t) => t.type !== 'INVOICE_PAYMENT');
   const monthTotal = transactions.reduce((total, t) => total + t.value, 0);
+
+  // A fatura que vence no mês selecionado no header.
+  const invoiceRef = {
+    dueDate: `${selectedMonth.year}-${String(selectedMonth.month + 1).padStart(2, '0')}-01`,
+  };
+  const { invoice, isLoading: isLoadingInvoice } = useCardInvoice(card.id, invoiceRef, isCredit);
   const monthLabel = formatMonthYear(new Date(selectedMonth.year, selectedMonth.month, 1));
 
   const { mutateAsync: toggleArchive, isPending: isArchiving } = useMutation({
@@ -179,6 +192,58 @@ function CardDetails({
           </DrawerSection>
         )}
 
+        {isCredit && (
+          <DrawerSection title={`Fatura de ${monthLabel}`}>
+            {isLoadingInvoice || !invoice ? (
+              <div className="skeleton h-[92px]" />
+            ) : (
+              <div className="flex items-center gap-3 rounded-2xl border border-border p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted">
+                    Vence {formatDate(fromApiDate(invoice.dueDate))} · fecha{' '}
+                    {formatDate(fromApiDate(invoice.closingDate))}
+                  </p>
+                  <Money
+                    value={invoice.total}
+                    className="mt-0.5 block text-2xl font-semibold tracking-tight text-fg"
+                  />
+                  <p
+                    className={cn(
+                      'mt-0.5 text-xs font-medium',
+                      invoice.total === 0
+                        ? 'text-muted'
+                        : invoice.pendingTotal === 0
+                          ? 'text-income-strong'
+                          : 'text-warning-strong',
+                    )}
+                  >
+                    {invoice.total === 0 ? (
+                      'Sem compras nesta fatura'
+                    ) : invoice.pendingTotal === 0 ? (
+                      'Paga'
+                    ) : invoice.paidTotal > 0 ? (
+                      <>
+                        Falta pagar <Money value={invoice.pendingTotal} />
+                      </>
+                    ) : (
+                      'Em aberto'
+                    )}
+                  </p>
+                </div>
+                {invoice.total > 0 && (
+                  <Button
+                    size="sm"
+                    variant={invoice.pendingTotal > 0 ? 'primary' : 'secondary'}
+                    onClick={() => setIsInvoiceOpen(true)}
+                  >
+                    {invoice.pendingTotal > 0 ? 'Pagar fatura' : 'Ver pagamento'}
+                  </Button>
+                )}
+              </div>
+            )}
+          </DrawerSection>
+        )}
+
         <DrawerSection title="Dados do cartão">
           <dl className="grid grid-cols-2 gap-2">
             <InfoItem label="Bandeira">
@@ -270,6 +335,15 @@ function CardDetails({
         isLoading={isRemoving}
         onConfirm={handleDelete}
       />
+
+      {isCredit && (
+        <PayInvoiceDialog
+          open={isInvoiceOpen}
+          onClose={() => setIsInvoiceOpen(false)}
+          cardId={card.id}
+          invoiceRef={invoiceRef}
+        />
+      )}
     </>
   );
 }

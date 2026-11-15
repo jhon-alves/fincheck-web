@@ -53,7 +53,11 @@ export function FixedOfMonth({
       <ul className="-mx-2 max-h-80 space-y-0.5 overflow-y-auto">
         {fixed.transactions.map((transaction) => {
           const date = fromApiDate(transaction.date);
-          const canConfirm = !transaction.paid && isDueOrPast(transaction.date);
+          // Crédito é pago pela fatura, não pelo "Confirmar".
+          const canConfirm =
+            !transaction.paid &&
+            transaction.paymentMethod !== 'CREDIT_CARD' &&
+            isDueOrPast(transaction.date);
           const isIncome = transaction.type === 'INCOME';
 
           return (

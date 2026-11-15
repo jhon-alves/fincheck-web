@@ -27,7 +27,7 @@ import { CategoryIcon } from '../../Icons/CategoryIcon';
 import { MiniCard } from '../../Cards/MiniCard';
 import { useDashboard } from '../../Dashboard/DashboardContext/useDashboard';
 import type { TransactionFormState } from '../../Dashboard/DashboardContext/DashboardContext';
-import type { TransactionType } from '../../../types/transactions-types';
+import type { FormTransactionType as TransactionType } from '../../../types/transactions-types';
 import type { SegmentedOption } from '../../Shared/SegmentedControl';
 import { InstallmentScopeDialog } from '../InstallmentScopeDialog';
 import { paymentMethodIcons } from '../paymentMethods';
@@ -68,7 +68,11 @@ export function TransactionFormDrawer() {
 
   if (transactionForm.open && transactionForm !== lastOpen?.state) {
     setLastOpen({ state: transactionForm, key: (lastOpen?.key ?? 0) + 1 });
-    setAccent(transactionForm.mode === 'edit' ? transactionForm.transaction.type : transactionForm.type);
+    setAccent(
+      transactionForm.mode === 'edit'
+        ? (transactionForm.transaction.type as TransactionType)
+        : transactionForm.type,
+    );
   }
 
   return (
@@ -154,17 +158,11 @@ function TransactionForm({
 
   const paidLabel = values.isRecurring && canRecur
     ? isExpense
-      ? isCredit
-        ? 'A 1ª cobrança já foi paga na fatura'
-        : 'A primeira já foi paga'
+      ? 'A primeira já foi paga'
       : 'A primeira já foi recebida'
     : isExpense
-    ? values.paymentMethod === 'CREDIT_CARD'
-      ? values.isInstallment
-        ? '1ª parcela já paga na fatura'
-        : 'Fatura já paga'
-      : 'Já foi pago'
-    : 'Já recebi';
+      ? 'Já foi pago'
+      : 'Já recebi';
 
   return (
     <>
@@ -773,7 +771,15 @@ function TransactionForm({
             </div>
           )}
 
-          {!isTransfer && (
+          {/* No crédito, a compra fica pendente até a fatura ser paga ("Pagar fatura"). */}
+          {!isTransfer && isCredit && (
+            <p className="rounded-xl bg-subtle px-3 py-2.5 text-xs text-muted">
+              Compras no crédito ficam pendentes até você pagar a fatura, pelo cartão em Cartões ou
+              pelo detalhe da compra. O valor sai da conta só quando a fatura é paga.
+            </p>
+          )}
+
+          {!isTransfer && !isCredit && (
             <Controller
               control={control}
               name="paid"

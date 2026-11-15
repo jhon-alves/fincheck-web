@@ -10,6 +10,7 @@ import {
   Laptop,
   Plane,
   Popcorn,
+  ReceiptText,
   Shirt,
   ShoppingCart,
   UtensilsCrossed,
@@ -39,6 +40,7 @@ const tones: Record<TransactionType, string> = {
   INCOME: 'bg-income-soft text-income-strong',
   EXPENSE: 'bg-expense-soft text-expense-strong',
   TRANSFER: 'bg-transfer-soft text-transfer-strong',
+  INVOICE_PAYMENT: 'bg-subtle text-fg-soft',
 };
 
 interface CategoryIconProps {
@@ -55,10 +57,12 @@ export function CategoryIcon({ type, icon, color, size = 'md', className }: Cate
   const Icon =
     type === 'TRANSFER'
       ? ArrowLeftRight
-      : (icon && (defaultCategoryIcons[icon] ?? customCategoryIcons[icon])) ||
-        (type === 'INCOME' ? CircleDollarSign : Ellipsis);
+      : type === 'INVOICE_PAYMENT'
+        ? ReceiptText
+        : (icon && (defaultCategoryIcons[icon] ?? customCategoryIcons[icon])) ||
+          (type === 'INCOME' ? CircleDollarSign : Ellipsis);
 
-  const colorVar = type === 'TRANSFER' ? null : categoryColorVar(color);
+  const colorVar = type === 'TRANSFER' || type === 'INVOICE_PAYMENT' ? null : categoryColorVar(color);
 
   return (
     <span

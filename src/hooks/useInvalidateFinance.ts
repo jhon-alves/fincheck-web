@@ -23,9 +23,9 @@ const LIST_PAGE: Record<FinanceList, string> = {
  * velho. Para não disparar uma requisição por lista a cada lançamento (com o
  * banco longe, cada uma pesa), a atualização é feita em duas partes:
  *
- * - Dados do período (lançamentos, calendário, dashboard, recorrências): só
- *   as consultas que estão na tela são buscadas de novo. As outras ficam
- *   marcadas como velhas e recarregam quando a página delas abrir.
+ * - Dados do período (lançamentos, calendário, dashboard, recorrências,
+ *   faturas): só as consultas que estão na tela são buscadas de novo. As
+ *   outras ficam marcadas como velhas e recarregam quando a página delas abrir.
  * - Contas, cartões e categorias: os nomes não mudam com um lançamento, só os
  *   números (saldo, limite usado, contagem). Só a página que mostra esses
  *   números busca de novo agora; nas outras a lista fica marcada como velha e
@@ -44,6 +44,7 @@ export function useInvalidateFinance() {
         queryKeys.calendar(),
         queryKeys.dashboard(),
         queryKeys.recurringRules,
+        queryKeys.invoice(),
       ];
 
       return Promise.all([

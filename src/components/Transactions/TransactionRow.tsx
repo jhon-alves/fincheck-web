@@ -33,8 +33,19 @@ export const TransactionRow = memo(function TransactionRow({
   const { type, name, value, paid, installmentNumber, installmentsTotal, category } = transaction;
   const isPending = !paid;
   const isRecurring = !!transaction.recurringRuleId;
-  const canConfirm = showConfirm && isRecurring && !paid && isDueOrPast(transaction.date);
-  const subtitle = type === 'TRANSFER' ? 'Transferência' : (category?.name ?? 'Sem categoria');
+  // Crédito é pago pela fatura, não pelo "Confirmar".
+  const canConfirm =
+    showConfirm &&
+    isRecurring &&
+    !paid &&
+    transaction.paymentMethod !== 'CREDIT_CARD' &&
+    isDueOrPast(transaction.date);
+  const subtitle =
+    type === 'TRANSFER'
+      ? 'Transferência'
+      : type === 'INVOICE_PAYMENT'
+        ? 'Pagamento de fatura'
+        : (category?.name ?? 'Sem categoria');
 
   // O "Confirmar" fica fora do botão principal (não pode haver botão dentro
   // de botão), na mesma linha.

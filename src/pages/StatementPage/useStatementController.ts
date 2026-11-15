@@ -57,6 +57,16 @@ export function useStatementController() {
         if (transaction.toBankAccountId === filters.bankAccountId) income += transaction.value;
         if (transaction.bankAccountId === filters.bankAccountId) expense += transaction.value;
       }
+
+      // Pagamento de fatura: sem filtro de conta não entra (as compras já
+      // contam como saída); filtrando pela conta que pagou, é saída dela.
+      if (
+        transaction.type === 'INVOICE_PAYMENT' &&
+        filters.bankAccountId &&
+        transaction.bankAccountId === filters.bankAccountId
+      ) {
+        expense += transaction.value;
+      }
     }
 
     return { income, expense, balance: income - expense };

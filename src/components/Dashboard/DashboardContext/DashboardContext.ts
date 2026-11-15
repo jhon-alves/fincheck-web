@@ -3,7 +3,7 @@ import { BankAccount } from '../../../types/bank-types';
 import {
   InstallmentScope,
   Transaction,
-  TransactionType,
+  FormTransactionType,
 } from '../../../types/transactions-types';
 
 export type SelectedMonth = {
@@ -17,7 +17,7 @@ export type TransactionFormState =
   | {
       open: true;
       mode: 'create';
-      type: TransactionType;
+      type: FormTransactionType;
       /** Data já preenchida (ex.: "+ Adicionar neste dia" no calendário). */
       date?: Date;
     }
@@ -51,7 +51,7 @@ export interface DashboardContextValue {
 
   // Lançamentos (drawers globais)
   transactionForm: TransactionFormState;
-  openNewTransaction: (options?: { type?: TransactionType; date?: Date }) => void;
+  openNewTransaction: (options?: { type?: FormTransactionType; date?: Date }) => void;
   openEditTransaction: (transaction: Transaction, scope?: InstallmentScope) => void;
   closeTransactionForm: () => void;
   transactionInDetail: Transaction | null;

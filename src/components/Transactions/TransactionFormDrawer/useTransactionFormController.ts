@@ -22,7 +22,7 @@ import type {
   InstallmentScope,
   PaymentMethod,
   Transaction,
-  TransactionType,
+  FormTransactionType,
 } from '../../../types/transactions-types';
 import type { TransactionFormState } from '../../Dashboard/DashboardContext/DashboardContext';
 import { previewInstallments } from '../installmentPreview';
@@ -133,7 +133,8 @@ function defaultValues(
     const t = state.transaction;
 
     return {
-      type: t.type,
+      // Pagamento de fatura não abre o formulário (só pode ser excluído).
+      type: t.type as FormTransactionType,
       value: t.value,
       name: t.type === 'TRANSFER' && t.name === 'Transferência' ? '' : t.name,
       date: fromApiDate(t.date),
@@ -259,7 +260,7 @@ export function useTransactionFormController(
     return previewInstallments(amount, values.installments, values.date);
   }, [canInstall, values.isInstallment, values.installments, amount, values.date]);
 
-  function changeType(type: TransactionType) {
+  function changeType(type: FormTransactionType) {
     if (isEditing || type === values.type) return;
     setValue('type', type);
     setValue('categoryId', '');
