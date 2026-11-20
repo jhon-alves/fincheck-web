@@ -36,7 +36,7 @@ import {
   Money,
   Tooltip,
 } from '../../../components/Shared';
-import { TransactionRow } from '../../../components/Transactions';
+import { TransactionRow, TransactionRowSkeleton } from '../../../components/Transactions';
 import { useDashboard } from '../../../components/Dashboard';
 import { formatDate, formatMonthYear, fromApiDate, formatDayHeading, toApiDate } from '../../../helpers';
 import { useCardInvoice, useInvalidateFinance, useTransactions } from '../../../hooks';
@@ -89,10 +89,19 @@ function CardDetails({
   // Crédito: abre na fatura atual (a que recebe as compras de hoje) e navega
   // de fatura em fatura. Débito: lançamentos do mês do header.
   const [invoiceRef, setInvoiceRef] = useState<InvoiceRef>({ purchaseDate: today });
-  const isCurrentInvoice = 'purchaseDate' in invoiceRef;
   const { invoice, isLoading: isLoadingInvoice } = useCardInvoice(card.id, invoiceRef, isCredit);
 
-  const { transactions: cardTransactions, isInitialLoading } = useTransactions(
+  // Vencimento da fatura atual, para esconder o "Atual" quando as setas
+  // voltam até ela (a comparação é pelo mês, sem esperar a fatura carregar).
+  const [currentDueDate, setCurrentDueDate] = useState<string | null>(null);
+  if ('purchaseDate' in invoiceRef && invoice && invoice.dueDate !== currentDueDate) {
+    setCurrentDueDate(invoice.dueDate);
+  }
+  const isCurrentInvoice =
+    'purchaseDate' in invoiceRef ||
+    (currentDueDate !== null && invoiceRef.dueDate.slice(0, 7) === currentDueDate.slice(0, 7));
+
+  const { transactions: cardTransactions, isInitialLoading, isPlaceholderData } = useTransactions(
     isCredit
       ? { cardId: card.id, from: invoice?.periodStart, to: invoice?.periodEnd }
       : { cardId: card.id, month: selectedMonth.month, year: selectedMonth.year },
@@ -100,6 +109,11 @@ function CardDetails({
   );
   // Pagamentos de fatura também têm o cartão, mas não são compras.
   const transactions = cardTransactions.filter((t) => t.type !== 'INVOICE_PAYMENT');
+  // Ao trocar de fatura (ou de mês), a lista antiga fica como placeholder até a
+  // nova chegar. Mostra o skeleton nesse meio, em vez de trocar de uma vez.
+  const isLoadingPurchases =
+    isInitialLoading || isPlaceholderData || (isCredit && (isLoadingInvoice || !invoice));
+  const skeletonRows = Math.min(Math.max(transactions.length, 3), 6);
   const monthTotal = transactions.reduce((total, t) => total + t.value, 0);
 
   function goToInvoice(delta: number) {
@@ -237,18 +251,18 @@ function CardDetails({
             )}
 
             <div className="mt-3">
-              {isInitialLoading && (
-                <div className="space-y-2">
-                  {Array.from({ length: 3 }, (_, i) => (
-                    <div key={i} className="skeleton h-14" />
+              {isLoadingPurchases && (
+                <div className="-mx-3 space-y-0.5" aria-busy>
+                  {Array.from({ length: skeletonRows }, (_, i) => (
+                    <TransactionRowSkeleton key={i} />
                   ))}
                 </div>
               )}
-              {!isInitialLoading && invoice && transactions.length === 0 && (
+              {!isLoadingPurchases && transactions.length === 0 && (
                 <p className="py-4 text-center text-sm text-muted">Nenhuma compra nesta fatura.</p>
               )}
               <div className="-mx-3 space-y-0.5">
-                {transactions.map((transaction) => (
+                {!isLoadingPurchases && transactions.map((transaction) => (
                   <TransactionRow
                     key={transaction.id}
                     transaction={transaction}
@@ -295,14 +309,14 @@ function CardDetails({
               )
             }
           >
-            {isInitialLoading && (
-              <div className="space-y-2">
-                {Array.from({ length: 3 }, (_, i) => (
-                  <div key={i} className="skeleton h-14" />
+            {isLoadingPurchases && (
+              <div className="-mx-3 space-y-0.5" aria-busy>
+                {Array.from({ length: skeletonRows }, (_, i) => (
+                  <TransactionRowSkeleton key={i} />
                 ))}
               </div>
             )}
-            {!isInitialLoading && transactions.length === 0 && (
+            {!isLoadingPurchases && transactions.length === 0 && (
               <EmptyState
                 className="py-6"
                 icon={<ReceiptText size={24} />}
@@ -311,7 +325,7 @@ function CardDetails({
               />
             )}
             <div className="-mx-3 space-y-0.5">
-              {transactions.map((transaction) => (
+              {!isLoadingPurchases && transactions.map((transaction) => (
                 <TransactionRow
                   key={transaction.id}
                   transaction={transaction}
