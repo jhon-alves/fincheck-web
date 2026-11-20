@@ -59,7 +59,7 @@ src/
     Layout/               # Sidebar recolhível, Header, MonthSelector, MobileNav, PageContainer, navItems
     Shared/               # Button, Input, Select, Drawer, Modal, ConfirmDialog, Money, Tooltip...
     Icons/                # CategoryIcon, AccountTypeIcon, bandeiras, paleta de categorias, rótulos
-    Cards/                # CardVisual (animado), MiniCard, CardFormDrawer, temas e número do cartão
+    Cards/                # CardVisual (animado), MiniCard, CardFormDrawer, CardDetailsDrawer (usado em Cartões e na Home), PayInvoiceDialog, temas e número do cartão
     Categories/           # CategoryFormDrawer, pickers de ícone e cor, QuickCategoryForm, exclusão
     Transactions/         # TransactionRow, drawers de formulário e detalhe, escopo, badge e confirmação
     Dashboard/            # DashboardContext + modais de conta

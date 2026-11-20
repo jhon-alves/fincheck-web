@@ -10,15 +10,11 @@ import {
   ReceiptText,
   Trash2,
 } from 'lucide-react';
-import {
-  CardLimitBar,
-  CardVisual,
-  formatExpiry,
-  isExpired,
-  PayInvoiceDialog,
-  savedCardNumber,
-} from '../../../components/Cards';
-import { BrandLogo, brandLabels } from '../../../components/Icons/brands';
+import { CardLimitBar } from './CardLimitBar';
+import { CardVisual } from './CardVisual';
+import { formatExpiry, isExpired, savedCardNumber } from './cardNumber';
+import { PayInvoiceDialog } from './PayInvoiceDialog';
+import { BrandLogo, brandLabels } from '../Icons/brands';
 import {
   Badge,
   Button,
@@ -35,13 +31,13 @@ import {
   IconButton,
   Money,
   Tooltip,
-} from '../../../components/Shared';
-import { TransactionRow, TransactionRowSkeleton } from '../../../components/Transactions';
-import { useDashboard } from '../../../components/Dashboard';
-import { formatDate, formatMonthYear, fromApiDate, formatDayHeading, toApiDate } from '../../../helpers';
-import { useCardInvoice, useInvalidateFinance, useTransactions } from '../../../hooks';
-import { cardsServices } from '../../../services/cards-services';
-import type { Card, CardInvoice, InvoiceRef } from '../../../types/cards-types';
+} from '../Shared';
+import { TransactionRow, TransactionRowSkeleton } from '../Transactions/TransactionRow';
+import { useDashboard } from '../Dashboard/DashboardContext/useDashboard';
+import { formatDate, formatMonthYear, fromApiDate, formatDayHeading, toApiDate } from '../../helpers';
+import { useCardInvoice, useInvalidateFinance, useTransactions } from '../../hooks';
+import { cardsServices } from '../../services/cards-services';
+import type { Card, CardInvoice, InvoiceRef } from '../../types/cards-types';
 
 interface CardDetailsDrawerProps {
   open: boolean;
