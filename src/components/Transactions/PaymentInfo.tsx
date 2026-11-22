@@ -1,3 +1,4 @@
+import { Landmark } from 'lucide-react';
 import { cn } from '../../helpers';
 import { MiniCard } from '../Cards/MiniCard';
 import type { Transaction } from '../../types/transactions-types';
@@ -11,7 +12,7 @@ export function PaymentInfo({
 }: {
   transaction: Transaction;
   className?: string;
-  /** Mostra também o nome do cartão/conta. */
+  /** Mostra também o nome do cartão. Pix e dinheiro sempre mostram a conta. */
   detailed?: boolean;
 }) {
   const { card, paymentMethod, bankAccount, toBankAccount, type } = transaction;
@@ -24,10 +25,28 @@ export function PaymentInfo({
     );
   }
 
+  if (type === 'INVOICE_PAYMENT') {
+    return (
+      <span className={cn('inline-flex min-w-0 items-center gap-1.5', className)}>
+        <Landmark size={13} aria-hidden className="shrink-0" />
+        <span className="truncate">{bankAccount?.name ?? 'Conta removida'}</span>
+        {detailed && card && (
+          <>
+            <span aria-hidden>→</span>
+            <MiniCard color={card.color} brand={card.brand} size="sm" />
+            <span className="money truncate">
+              {card.name} · •••• {card.lastDigits}
+            </span>
+          </>
+        )}
+      </span>
+    );
+  }
+
   if (card) {
     return (
       <span className={cn('inline-flex min-w-0 items-center gap-1.5', className)}>
-        <MiniCard color={card.color} brand={card.brand} className="h-4 w-6 rounded-[3px] p-[2px] [&>span]:h-1.5" />
+        <MiniCard color={card.color} brand={card.brand} size="sm" />
         <span className="money truncate">
           {detailed ? `${card.name} · ` : ''}•••• {card.lastDigits}
         </span>
@@ -43,7 +62,7 @@ export function PaymentInfo({
       <span className="truncate">
         {paymentMethod === 'ACCOUNT'
           ? (bankAccount?.name ?? paymentMethodLabels.ACCOUNT)
-          : `${paymentMethodLabels[paymentMethod]}${detailed && bankAccount ? ` · ${bankAccount.name}` : ''}`}
+          : `${paymentMethodLabels[paymentMethod]}${bankAccount ? ` · ${bankAccount.name}` : ''}`}
       </span>
     </span>
   );

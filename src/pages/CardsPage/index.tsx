@@ -3,10 +3,9 @@ import { motion } from 'motion/react';
 import { ChevronDown, Plus } from 'lucide-react';
 import { PageContainer } from '../../components/Layout';
 import { Button, Card, Money } from '../../components/Shared';
-import { CardFormDrawer, CardLimitBar, CardVisual } from '../../components/Cards';
+import { CardDetailsDrawer, CardFormDrawer, CardLimitBar, CardVisual } from '../../components/Cards';
 import { cn } from '../../helpers';
 import { CardTile } from './components/CardTile';
-import { CardDetailsDrawer } from './components/CardDetailsDrawer';
 import { useCardsController } from './useCardsController';
 
 function EmptyCards({ onCreate }: { onCreate: () => void }) {

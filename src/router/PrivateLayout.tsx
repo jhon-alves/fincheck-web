@@ -9,11 +9,16 @@ import { GlobalDrawers } from './GlobalDrawers';
  * esmaece o conteúdo que sobe por baixo do header em vez de cortá-lo seco; os
  * 24px coincidem com o pt-6 do PageContainer, então com a página parada nada
  * some.
+ *
+ * O `relative` no shell e no <main> é o que mantém uma barra de rolagem só:
+ * elementos `absolute` sem ancestral posicionado (ex.: o `sr-only` do selo de
+ * recorrente) seriam posicionados em relação à página inteira e, no fim de uma
+ * lista longa, esticariam o documento, criando uma segunda rolagem na janela.
  */
 export function PrivateLayout() {
   return (
     <DashboardProvider>
-      <div className="app-backdrop flex h-dvh overflow-hidden">
+      <div className="app-backdrop relative flex h-dvh overflow-hidden">
         <a
           href="#conteudo"
           className="sr-only z-[100] rounded-xl bg-primary px-4 py-2 font-semibold text-on-primary focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
@@ -31,7 +36,7 @@ export function PrivateLayout() {
 
           <main
             id="conteudo"
-            className="scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto mask-[linear-gradient(to_bottom,transparent,black_24px)]"
+            className="scrollbar relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto mask-[linear-gradient(to_bottom,transparent,black_24px)]"
           >
             <Suspense fallback={<PageSkeleton />}>
               <Outlet />

@@ -59,7 +59,7 @@ src/
     Layout/               # Sidebar recolhível, Header, MonthSelector, MobileNav, PageContainer, navItems
     Shared/               # Button, Input, Select, Drawer, Modal, ConfirmDialog, Money, Tooltip...
     Icons/                # CategoryIcon, AccountTypeIcon, bandeiras, paleta de categorias, rótulos
-    Cards/                # CardVisual (animado), MiniCard, CardFormDrawer, temas e número do cartão
+    Cards/                # CardVisual (animado), MiniCard, CardFormDrawer, CardDetailsDrawer (usado em Cartões e na Home), PayInvoiceDialog, temas e número do cartão
     Categories/           # CategoryFormDrawer, pickers de ícone e cor, QuickCategoryForm, exclusão
     Transactions/         # TransactionRow, drawers de formulário e detalhe, escopo, badge e confirmação
     Dashboard/            # DashboardContext + modais de conta
@@ -82,7 +82,7 @@ Rotas: `/` (Home), `/extrato`, `/calendario`, `/cartoes`, `/contas`, `/categoria
 
 1. `services/*-services.ts` chama a API pelo `httpClient` (axios com `baseURL = VITE_API_URL` e o header `Authorization: Bearer` lido de `localStorage['@token']`).
 2. `hooks/use*.ts` envolve os services em `useQuery`/`useMutation`. **Todas as query keys ficam em `hooks/queryKeys.ts`.** A primeira posição é o domínio: invalidar `['transactions']` alcança todas as listas filtradas.
-3. Depois de criar, editar, excluir ou confirmar lançamentos, chame `useInvalidateFinance()`. Ele invalida lançamentos, calendário, dashboard, cartões, contas, categorias e regras recorrentes, porque tudo depende dos lançamentos.
+3. Depois de criar, editar, excluir ou confirmar lançamentos, chame `void invalidateFinance()` **sem `await`**: feche o drawer e mostre o toast antes, e a lista atualiza por trás. Só o que a página atual mostra é buscado de novo. Lançamentos, calendário, dashboard e recorrências recarregam se estiverem na tela. Contas, cartões e categorias só recarregam na página que mostra os números delas (Contas, Cartões, Categorias); nas outras ficam marcadas como velhas. Telas que só usam os nomes dessas listas passam `{ refetchOnMount: false }` para `useBankAccounts`, `useCards` e `useCategories`. Quando a própria lista muda (conta nova ou renomeada), use `invalidateFinance({ refetch: ['bankAccounts'] })`.
 4. Listas que mudam com o mês (`useTransactions`, `useCalendar`, `useDashboardSummary`) usam `placeholderData: keepPreviousData`. Enquanto o mês novo carrega, a tela continua mostrando o anterior, e o `MonthSelector` mostra um spinner (`useIsFetching`).
 
 Estado global de UI fica no `DashboardContext` (`components/Dashboard/DashboardContext`):
@@ -119,6 +119,7 @@ Use essas funções em vez de criar drawers locais de lançamento.
 
 - React Hook Form + Zod 4. Mensagens customizadas usam `{ error: '...' }` (o `required_error` do Zod 3 não existe mais). Com o Zod 4, o `superRefine` roda junto com os erros de campo, então o formulário mostra todos os erros de uma vez. Para observar campos, use `useWatch({ name })` em vez de `form.watch()` (o lint reclama e re-renderiza demais).
 - Mensagens de erro da API: `apiErrorMessage(error, fallback)` em `helpers/apiError.ts`, exibidas com `toast.error`.
+- No formulário de lançamento, parcelar e repetir ficam num seletor só, "Como lançar" (`entryMode`: Uma vez / Parcelado / Recorrente). Não separe de novo em dois controles: "12x" (divide o valor) e "repetir 12 vezes" (multiplica o valor) já foram confundidos. A prévia da recorrência mostra o total, e no crédito não existe "confirmar sozinho".
 - Lançamento parcelado ou recorrente: editar ou excluir abre o `InstallmentScopeDialog` ("só esta", "esta e as próximas", "todas") e envia `?scope=` para a API.
 
 ### Cartões (segurança)
@@ -128,6 +129,7 @@ O número completo do cartão existe **só no estado do formulário**, para dete
 ### Domínio
 
 - **Saldo**: a API só soma lançamentos pagos e ignora compras no crédito. Lançamentos previstos (parcelas futuras, recorrentes) aparecem com o status "pendente" e o botão "Confirmar".
+- **Fatura**: compras no crédito ficam pendentes até a fatura ser paga pelo `PayInvoiceDialog` (`components/Cards`), aberto pelo drawer do cartão ("Fatura de <mês>"), pelo detalhe da compra ("Pagar fatura"/"Ver fatura") ou pelos "Próximos 7 dias" da Home. Não existe "Confirmar" nem toggle de pago para crédito, e as linhas de compras no crédito não mostram "Pendente": o status é da fatura (Aberta até o dia do fechamento, Fechada depois, Paga quando não falta nada), exibido no drawer do cartão, que abre na fatura atual e navega de fatura em fatura listando as compras de cada uma. O pagamento vira um lançamento `INVOICE_PAYMENT` ("Fatura Black"): aparece no extrato com valor neutro, não entra em totais de entrada/saída (só no filtro por conta) e só pode ser excluído, o que desfaz o pagamento.
 - **Parcelas**: o nome vem sem sufixo. O "3/10" é montado no front a partir de `installmentNumber`/`installmentsTotal`.
 - **Recorrentes**: aparecem com o `RecurringBadge` (↻). A aba Recorrentes do extrato lista as regras, que não dependem do mês (por isso o seletor de mês some nessa aba).
 - **Categorias padrão** (`isDefault`) não podem ser editadas nem excluídas. Excluir uma personalizada com lançamentos pede uma categoria de destino.

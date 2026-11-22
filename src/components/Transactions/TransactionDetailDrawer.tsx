@@ -7,6 +7,7 @@ import {
   CheckCheck,
   Clock3,
   Pencil,
+  ReceiptText,
   Repeat,
   StickyNote,
   Trash2,
@@ -22,6 +23,7 @@ import { transactionsServices } from '../../services/transactions-services';
 import type { InstallmentScope, Transaction } from '../../types/transactions-types';
 import { useDashboard } from '../Dashboard/DashboardContext/useDashboard';
 import { CategoryIcon } from '../Icons/CategoryIcon';
+import { PayInvoiceDialog } from '../Cards/PayInvoiceDialog';
 import {
   Badge,
   Button,
@@ -84,12 +86,16 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
   const { openEditTransaction, openTransactionDetail, closeTransactionDetail } = useDashboard();
   const [isPaid, setIsPaid] = useState(transaction.paid);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const { installments, isLoading: isLoadingGroup } = useInstallmentGroup(
     transaction.installmentGroupId,
   );
 
   const date = fromApiDate(transaction.date);
   const isTransfer = transaction.type === 'TRANSFER';
+  const isInvoicePayment = transaction.type === 'INVOICE_PAYMENT';
+  // Compra no crédito: "pago" vem do pagamento da fatura, não de um botão.
+  const isCreditPurchase = transaction.paymentMethod === 'CREDIT_CARD' && !!transaction.cardId;
   const isGroup = !!transaction.installmentGroupId;
   const isRecurring = !!transaction.recurringRuleId;
   const isScoped = isGroup || isRecurring;
@@ -111,12 +117,18 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
   async function handleDelete(scope: InstallmentScope = 'one') {
     try {
       await remove(scope);
-      await invalidateFinance();
       toast.success(
-        scope === 'one' ? 'Lançamento excluído' : scope === 'all' ? 'Parcelamento excluído' : 'Parcelas excluídas',
+        isInvoicePayment
+          ? 'Pagamento excluído. As compras voltaram para pendente.'
+          : scope === 'one'
+            ? 'Lançamento excluído'
+            : scope === 'all'
+              ? 'Parcelamento excluído'
+              : 'Parcelas excluídas',
       );
       setIsConfirmingDelete(false);
       closeTransactionDetail();
+      void invalidateFinance();
     } catch {
       toast.error('Não foi possível excluir o lançamento');
     }
@@ -150,10 +162,18 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
               className={cn('text-3xl font-semibold tracking-tight', amountToneClass[transaction.type])}
             />
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              <Badge tone={isPaid ? 'income' : 'warning'}>
-                {isPaid ? <Check size={11} /> : <Clock3 size={11} />}
-                {isRecurring && !isPaid ? 'Previsto' : paidLabel(transaction.type, isPaid)}
-              </Badge>
+              {isCreditPurchase ? (
+                // O status é da fatura, não da compra.
+                <Badge tone={isPaid ? 'income' : 'neutral'}>
+                  {isPaid ? <Check size={11} /> : <ReceiptText size={11} />}
+                  {isPaid ? 'Fatura paga' : 'Na fatura'}
+                </Badge>
+              ) : (
+                <Badge tone={isPaid ? 'income' : 'warning'}>
+                  {isPaid ? <Check size={11} /> : <Clock3 size={11} />}
+                  {isRecurring && !isPaid ? 'Previsto' : paidLabel(transaction.type, isPaid)}
+                </Badge>
+              )}
               {isGroup && (
                 <Badge tone="neutral" className="money">
                   Parcela {transaction.installmentNumber} de {transaction.installmentsTotal}
@@ -167,9 +187,17 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
           <InfoRow icon={<CalendarDays size={16} />} label="Data">
             {formatLongDay(date)} de {date.getFullYear()}
           </InfoRow>
-          <InfoRow icon={<CheckCheck size={16} />} label={isTransfer ? 'Contas' : 'Forma de pagamento'}>
+          {isInvoicePayment && transaction.invoiceDueDate && (
+            <InfoRow icon={<ReceiptText size={16} />} label="Fatura">
+              Vence em {formatDate(fromApiDate(transaction.invoiceDueDate))}
+            </InfoRow>
+          )}
+          <InfoRow
+            icon={<CheckCheck size={16} />}
+            label={isTransfer ? 'Contas' : isInvoicePayment ? 'Pago com' : 'Forma de pagamento'}
+          >
             <span className="flex flex-col gap-0.5">
-              {!isTransfer && <span>{paymentMethodLabels[transaction.paymentMethod]}</span>}
+              {!isTransfer && !isInvoicePayment && <span>{paymentMethodLabels[transaction.paymentMethod]}</span>}
               <PaymentInfo transaction={transaction} detailed className="text-fg-soft" />
             </span>
           </InfoRow>
@@ -270,7 +298,13 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
           </IconButton>
         </Tooltip>
         <div className="flex gap-2">
-          {!isTransfer && (
+          {isCreditPurchase && (
+            <Button variant="secondary" onClick={() => setIsInvoiceOpen(true)}>
+              <ReceiptText size={16} />
+              {isPaid ? 'Ver fatura' : 'Pagar fatura'}
+            </Button>
+          )}
+          {!isTransfer && !isInvoicePayment && !isCreditPurchase && (
             <Button
               variant="secondary"
               onClick={() => togglePaid(!isPaid)}
@@ -288,9 +322,11 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
                     : 'Marcar como pago'}
             </Button>
           )}
-          <Button onClick={() => openEditTransaction({ ...transaction, paid: isPaid })}>
-            <Pencil size={16} /> Editar
-          </Button>
+          {!isInvoicePayment && (
+            <Button onClick={() => openEditTransaction({ ...transaction, paid: isPaid })}>
+              <Pencil size={16} /> Editar
+            </Button>
+          )}
         </div>
       </DrawerFooter>
 
@@ -307,11 +343,31 @@ function TransactionDetail({ transaction }: { transaction: Transaction }) {
         <ConfirmDialog
           open={isConfirmingDelete}
           onOpenChange={setIsConfirmingDelete}
-          title={isTransfer ? 'Excluir esta transferência?' : 'Excluir este lançamento?'}
-          description="Essa ação não pode ser desfeita."
-          confirmLabel="Excluir"
+          title={
+            isInvoicePayment
+              ? 'Excluir este pagamento?'
+              : isTransfer
+                ? 'Excluir esta transferência?'
+                : 'Excluir este lançamento?'
+          }
+          description={
+            isInvoicePayment
+              ? 'As compras da fatura voltam a ficar pendentes e o valor volta para a conta.'
+              : 'Essa ação não pode ser desfeita.'
+          }
+          confirmLabel={isInvoicePayment ? 'Excluir pagamento' : 'Excluir'}
           isLoading={isRemoving}
           onConfirm={() => handleDelete('one')}
+        />
+      )}
+
+      {isCreditPurchase && (
+        <PayInvoiceDialog
+          open={isInvoiceOpen}
+          onClose={() => setIsInvoiceOpen(false)}
+          cardId={transaction.cardId!}
+          invoiceRef={{ purchaseDate: transaction.date.slice(0, 10) }}
+          onChange={closeTransactionDetail}
         />
       )}
     </>

@@ -6,7 +6,7 @@ export function CardBack({ card }: { card: Card }) {
   if (card.kind === 'DEBIT') {
     return (
       <div className="space-y-[2cqw]">
-        <span className="block text-[2.8cqw] tracking-wider uppercase opacity-75">
+        <span className="block text-[2.4cqw] tracking-wider uppercase opacity-70">
           Conta vinculada
         </span>
         <span className="block truncate text-[5cqw] font-semibold">
@@ -27,13 +27,14 @@ export function CardBack({ card }: { card: Card }) {
         limit={card.creditLimit ?? 0}
         className="[&_*]:text-[3.2cqw]"
       />
-      <div className="flex gap-[6cqw] text-[3.2cqw]">
+      {/* Rótulos no mesmo estilo de "Titular" e "Validade" da frente */}
+      <div className="flex gap-[6cqw]">
         <div>
-          <span className="block tracking-wider uppercase opacity-70">Fecha dia</span>
+          <span className="block text-[2.4cqw] tracking-wider uppercase opacity-70">Fecha dia</span>
           <span className="money block text-[4.6cqw] font-semibold">{card.closingDay}</span>
         </div>
         <div>
-          <span className="block tracking-wider uppercase opacity-70">Vence dia</span>
+          <span className="block text-[2.4cqw] tracking-wider uppercase opacity-70">Vence dia</span>
           <span className="money block text-[4.6cqw] font-semibold">{card.dueDay}</span>
         </div>
       </div>

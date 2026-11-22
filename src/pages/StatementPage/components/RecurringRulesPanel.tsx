@@ -45,7 +45,7 @@ function RulePayment({ rule }: { rule: RecurringRule }) {
   if (rule.card) {
     return (
       <span className="inline-flex items-center gap-1.5">
-        <MiniCard color={rule.card.color} brand={rule.card.brand} className="h-4 w-6 rounded-[3px] p-[2px] [&>span]:h-1.5" />
+        <MiniCard color={rule.card.color} brand={rule.card.brand} size="sm" />
         <span className="money">•••• {rule.card.lastDigits}</span>
       </span>
     );
@@ -89,7 +89,7 @@ export function RecurringRulesPanel() {
   async function handleStatus(rule: RecurringRule, action: 'end' | 'pause' | 'resume') {
     try {
       await changeStatus({ ruleId: rule.id, action });
-      await invalidateFinance();
+      void invalidateFinance();
       toast.success(
         action === 'pause' ? 'Recorrência pausada' : action === 'resume' ? 'Recorrência reativada' : 'Recorrência encerrada',
       );
@@ -102,7 +102,7 @@ export function RecurringRulesPanel() {
   async function handleDelete(rule: RecurringRule) {
     try {
       await removeRule(rule.id);
-      await invalidateFinance();
+      void invalidateFinance();
       toast.success('Recorrência excluída');
       setPending(null);
     } catch (error) {

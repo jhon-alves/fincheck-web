@@ -22,12 +22,15 @@ import type {
   InstallmentScope,
   PaymentMethod,
   Transaction,
-  TransactionType,
+  FormTransactionType,
 } from '../../../types/transactions-types';
 import type { TransactionFormState } from '../../Dashboard/DashboardContext/DashboardContext';
 import { previewInstallments } from '../installmentPreview';
 
 const MAX_INSTALLMENTS = 48;
+
+/** Como o lançamento se repete: uma vez, parcelado no cartão ou recorrente. */
+export type EntryMode = 'single' | 'installments' | 'recurring';
 
 const schema = z
   .object({
@@ -130,7 +133,8 @@ function defaultValues(
     const t = state.transaction;
 
     return {
-      type: t.type,
+      // Pagamento de fatura não abre o formulário (só pode ser excluído).
+      type: t.type as FormTransactionType,
       value: t.value,
       name: t.type === 'TRANSFER' && t.name === 'Transferência' ? '' : t.name,
       date: fromApiDate(t.date),
@@ -178,9 +182,10 @@ export function useTransactionFormController(
   // Parcelas e ocorrências recorrentes perguntam o escopo antes de salvar.
   const isInstallmentGroup = !!editing?.installmentGroupId || !!editing?.recurringRuleId;
 
-  const { accounts } = useBankAccounts();
-  const { categories } = useCategories();
-  const { activeCards, cards } = useCards();
+  // Só nomes e dias: não precisa buscar de novo a cada lançamento.
+  const { accounts } = useBankAccounts({ refetchOnMount: false });
+  const { categories } = useCategories({ refetchOnMount: false });
+  const { activeCards, cards } = useCards({ refetchOnMount: false });
   const invalidateFinance = useInvalidateFinance();
   const [isScopeDialogOpen, setIsScopeDialogOpen] = useState(false);
   const [pendingData, setPendingData] = useState<TransactionFormData | null>(null);
@@ -198,10 +203,14 @@ export function useTransactionFormController(
   const isCardMethod = values.paymentMethod === 'CREDIT_CARD' || values.paymentMethod === 'DEBIT_CARD';
   const canRecur = !isEditing && values.type !== 'TRANSFER';
   const canInstall =
-    values.type === 'EXPENSE' &&
-    values.paymentMethod === 'CREDIT_CARD' &&
-    !isEditing &&
-    !values.isRecurring;
+    values.type === 'EXPENSE' && values.paymentMethod === 'CREDIT_CARD' && !isEditing;
+  // Parcelar e repetir são excludentes: um seletor só evita confundir
+  // "12 parcelas" (divide o valor) com "repetir 12 vezes" (multiplica o valor).
+  const entryMode: EntryMode = values.isRecurring
+    ? 'recurring'
+    : values.isInstallment && canInstall
+      ? 'installments'
+      : 'single';
 
   const categoryOptions = useMemo(
     () =>
@@ -251,7 +260,7 @@ export function useTransactionFormController(
     return previewInstallments(amount, values.installments, values.date);
   }, [canInstall, values.isInstallment, values.installments, amount, values.date]);
 
-  function changeType(type: TransactionType) {
+  function changeType(type: FormTransactionType) {
     if (isEditing || type === values.type) return;
     setValue('type', type);
     setValue('categoryId', '');
@@ -266,6 +275,12 @@ export function useTransactionFormController(
       setValue('paid', !hasCreditCards);
     }
     form.clearErrors();
+  }
+
+  function changeEntryMode(mode: EntryMode) {
+    setValue('isRecurring', mode === 'recurring');
+    setValue('isInstallment', mode === 'installments');
+    form.clearErrors(['installments', 'endDate']);
   }
 
   function changePaymentMethod(method: PaymentMethod) {
@@ -340,14 +355,14 @@ export function useTransactionFormController(
                   endDate:
                     data.endMode === 'date' && data.endDate ? toApiDate(data.endDate) : null,
                   maxOccurrences: data.endMode === 'count' ? data.maxOccurrences : null,
-                  autoConfirm: data.autoConfirm,
+                  // No crédito, "pago" é fatura paga: não confirma sozinho.
+                  autoConfirm: data.paymentMethod !== 'CREDIT_CARD' && data.autoConfirm,
                 }
               : undefined,
           });
         }
       }
 
-      await invalidateFinance();
       toast.success(
         editing
           ? 'Lançamento atualizado!'
@@ -361,6 +376,8 @@ export function useTransactionFormController(
       );
       setIsScopeDialogOpen(false);
       onClose();
+      // Fecha na hora: a lista atualiza em segundo plano.
+      void invalidateFinance();
     } catch {
       toast.error(editing ? 'Não foi possível salvar o lançamento' : 'Não foi possível criar o lançamento');
     }
@@ -386,6 +403,8 @@ export function useTransactionFormController(
     isCardMethod,
     canInstall,
     canRecur,
+    entryMode,
+    changeEntryMode,
     recurrencePreview,
     installmentPlan,
     accounts,

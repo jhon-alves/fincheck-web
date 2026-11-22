@@ -3,7 +3,7 @@ import { BankAccount } from '../../../types/bank-types';
 import {
   InstallmentScope,
   Transaction,
-  TransactionType,
+  FormTransactionType,
 } from '../../../types/transactions-types';
 import { readStorage, writeStorage } from '../../../helpers/storage';
 import {
@@ -79,7 +79,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const openNewTransaction = useCallback(
-    (options?: { type?: TransactionType; date?: Date }) => {
+    (options?: { type?: FormTransactionType; date?: Date }) => {
       setTransactionForm({
         open: true,
         mode: 'create',

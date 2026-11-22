@@ -1,4 +1,13 @@
-import { Card, CardParams, CardsResponse, UpdateCardParams } from '../types/cards-types';
+import {
+  Card,
+  CardInvoice,
+  CardParams,
+  CardsResponse,
+  InvoiceRef,
+  PayInvoiceParams,
+  UpdateCardParams,
+} from '../types/cards-types';
+import type { Transaction } from '../types/transactions-types';
 import { httpClient } from './httpClient';
 
 export const cardsServices = {
@@ -6,6 +15,8 @@ export const cardsServices = {
   createCard,
   updateCard,
   removeCard,
+  getInvoice,
+  payInvoice,
 };
 
 async function getCards() {
@@ -27,4 +38,15 @@ async function updateCard({ id, ...params }: UpdateCardParams) {
 
 async function removeCard(cardId: string) {
   await httpClient.delete(`cards/${cardId}`);
+}
+
+async function getInvoice(cardId: string, ref: InvoiceRef) {
+  const { data } = await httpClient.get<CardInvoice>(`cards/${cardId}/invoice`, { params: ref });
+  return data;
+}
+
+/** Paga a fatura: cria o pagamento na conta e marca as compras como pagas. */
+async function payInvoice({ cardId, ...params }: PayInvoiceParams) {
+  const { data } = await httpClient.post<Transaction>(`cards/${cardId}/invoice/pay`, params);
+  return data;
 }

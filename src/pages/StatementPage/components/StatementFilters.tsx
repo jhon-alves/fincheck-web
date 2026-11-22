@@ -19,9 +19,9 @@ type PaidOption = 'ALL' | 'PAID' | 'PENDING';
 
 /** Botão "Filtros" com o popover de filtros. */
 export function StatementFiltersButton({ filters, activeCount, onChange, onClear }: StatementFiltersProps) {
-  const { accounts } = useBankAccounts();
-  const { cards } = useCards();
-  const { categories } = useCategories();
+  const { accounts } = useBankAccounts({ refetchOnMount: false });
+  const { cards } = useCards({ refetchOnMount: false });
+  const { categories } = useCategories({ refetchOnMount: false });
 
   const withAll = (label: string, options: { value: string; label: string }[]) => [
     { value: ALL, label },
@@ -136,16 +136,16 @@ export function StatementFiltersButton({ filters, activeCount, onChange, onClear
 
 /** Chips dos filtros ativos, cada um com "×" para remover. */
 export function ActiveFilterChips({ filters, onChange, onClear }: Omit<StatementFiltersProps, 'activeCount'>) {
-  const { accounts } = useBankAccounts();
-  const { cards } = useCards();
-  const { categories } = useCategories();
+  const { accounts } = useBankAccounts({ refetchOnMount: false });
+  const { cards } = useCards({ refetchOnMount: false });
+  const { categories } = useCategories({ refetchOnMount: false });
 
   const chips: Array<{ key: keyof Filters; label: string }> = [];
 
   if (filters.type) {
     chips.push({
       key: 'type',
-      label: { INCOME: 'Entradas', EXPENSE: 'Saídas', TRANSFER: 'Transferências' }[filters.type],
+      label: { INCOME: 'Entradas', EXPENSE: 'Saídas', TRANSFER: 'Transferências', INVOICE_PAYMENT: 'Faturas' }[filters.type],
     });
   }
   if (filters.paid !== undefined) {

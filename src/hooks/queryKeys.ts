@@ -1,3 +1,4 @@
+import type { InvoiceRef } from '../types/cards-types';
 import type { TransactionsFilters } from '../types/transactions-types';
 
 /**
@@ -16,6 +17,8 @@ export const queryKeys = {
     ['transactions', 'installments', groupId] as const,
   calendar: (month?: number, year?: number) =>
     month === undefined ? (['calendar'] as const) : (['calendar', month, year] as const),
+  invoice: (cardId?: string, ref?: InvoiceRef) =>
+    cardId && ref ? (['invoice', cardId, ref] as const) : (['invoice'] as const),
   dashboard: (month?: number, year?: number) =>
     month === undefined
       ? (['dashboard'] as const)

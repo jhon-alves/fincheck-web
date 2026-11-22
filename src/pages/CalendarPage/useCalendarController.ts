@@ -36,7 +36,7 @@ function isTypingTarget(target: EventTarget | null) {
 export function useCalendarController() {
   const { selectedMonth, goToNextMonth, goToPreviousMonth, setSelectedMonth } = useDashboard();
   const { days, isLoading, isFetching } = useCalendar(selectedMonth.month, selectedMonth.year);
-  const { activeCards } = useCards();
+  const { activeCards } = useCards({ refetchOnMount: false });
   const [dayDrawer, setDayDrawer] = useState<{ open: boolean; date: Date | null }>({
     open: false,
     date: null,

@@ -1,7 +1,14 @@
 import type { CardBrand, CardKind } from './cards-types';
 import type { RecurrenceInfo, RecurrenceParams } from './recurring-types';
 
-export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
+/**
+ * `INVOICE_PAYMENT`: pagamento de fatura do cartão. Tira o valor da conta, mas
+ * não conta como saída nos totais (as compras da fatura já contam).
+ */
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER' | 'INVOICE_PAYMENT';
+
+/** Tipos que o formulário de lançamento cria e edita (pagamento de fatura vem de "Pagar fatura"). */
+export type FormTransactionType = Exclude<TransactionType, 'INVOICE_PAYMENT'>;
 
 export type PaymentMethod =
   | 'ACCOUNT'
@@ -35,6 +42,10 @@ export type Transaction = {
   occurrenceDate: string | null;
   /** Editada individualmente: a regra não a sobrescreve mais. */
   isDetached: boolean;
+  /** Compra no crédito paga numa fatura: id do pagamento (INVOICE_PAYMENT). */
+  invoicePaymentId: string | null;
+  /** No pagamento de fatura: vencimento da fatura paga (ISO). */
+  invoiceDueDate: string | null;
   recurringRule: RecurrenceInfo | null;
   createdAt: string;
   category: {

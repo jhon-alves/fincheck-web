@@ -21,6 +21,7 @@ export const transactionTypeLabels: Record<TransactionType, string> = {
   INCOME: 'Entrada',
   EXPENSE: 'Saída',
   TRANSFER: 'Transferência',
+  INVOICE_PAYMENT: 'Pagamento de fatura',
 };
 
 /** Classe de cor do valor por tipo (versões "strong" passam de 4,5:1). */
@@ -28,17 +29,20 @@ export const amountToneClass: Record<TransactionType, string> = {
   INCOME: 'text-income-strong',
   EXPENSE: 'text-expense-strong',
   TRANSFER: 'text-transfer-strong',
+  INVOICE_PAYMENT: 'text-fg',
 };
 
 export const amountSign: Record<TransactionType, '+' | '-' | undefined> = {
   INCOME: '+',
   EXPENSE: '-',
   TRANSFER: undefined,
+  INVOICE_PAYMENT: '-',
 };
 
 export function paidLabel(type: TransactionType, paid: boolean) {
   if (!paid) return 'Pendente';
   if (type === 'INCOME') return 'Recebido';
   if (type === 'TRANSFER') return 'Concluída';
+  if (type === 'INVOICE_PAYMENT') return 'Fatura paga';
   return 'Pago';
 }

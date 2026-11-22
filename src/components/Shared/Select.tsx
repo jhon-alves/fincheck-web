@@ -9,6 +9,11 @@ export type SelectOption = {
   label: string;
   /** Ícone/visual à esquerda (ex.: mini cartão com bandeira). */
   icon?: ReactNode;
+  /**
+   * Versão menor do ícone para o campo fechado, onde o rótulo flutuante deixa
+   * pouco espaço (ex.: mini cartão `sm`). Sem ela, usa `icon`.
+   */
+  triggerIcon?: ReactNode;
   description?: string;
 };
 
@@ -60,7 +65,9 @@ export function Select({
               className,
             )}
           >
-            {selected?.icon && <span className="shrink-0">{selected.icon}</span>}
+            {(selected?.triggerIcon ?? selected?.icon) && (
+              <span className="flex shrink-0">{selected.triggerIcon ?? selected.icon}</span>
+            )}
             <span className="min-w-0 flex-1 truncate">
               <RadixSelect.Value>{selected?.label}</RadixSelect.Value>
             </span>

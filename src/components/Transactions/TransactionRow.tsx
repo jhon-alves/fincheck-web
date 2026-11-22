@@ -31,10 +31,24 @@ export const TransactionRow = memo(function TransactionRow({
   className,
 }: TransactionRowProps) {
   const { type, name, value, paid, installmentNumber, installmentsTotal, category } = transaction;
-  const isPending = !paid;
+  // Compra no crédito não é paga sozinha: ela faz parte da fatura, que tem o
+  // próprio status (aberta, fechada, paga). Por isso não mostra "Pendente".
+  const isCreditPurchase = transaction.paymentMethod === 'CREDIT_CARD' && type === 'EXPENSE';
+  const isPending = !paid && !isCreditPurchase;
   const isRecurring = !!transaction.recurringRuleId;
-  const canConfirm = showConfirm && isRecurring && !paid && isDueOrPast(transaction.date);
-  const subtitle = type === 'TRANSFER' ? 'Transferência' : (category?.name ?? 'Sem categoria');
+  // Crédito é pago pela fatura, não pelo "Confirmar".
+  const canConfirm =
+    showConfirm &&
+    isRecurring &&
+    !paid &&
+    transaction.paymentMethod !== 'CREDIT_CARD' &&
+    isDueOrPast(transaction.date);
+  const subtitle =
+    type === 'TRANSFER'
+      ? 'Transferência'
+      : type === 'INVOICE_PAYMENT'
+        ? 'Pagamento de fatura'
+        : (category?.name ?? 'Sem categoria');
 
   // O "Confirmar" fica fora do botão principal (não pode haver botão dentro
   // de botão), na mesma linha.
@@ -85,18 +99,34 @@ export const TransactionRow = memo(function TransactionRow({
             sign={amountSign[type]}
             className={cn('font-semibold', amountToneClass[type], isPending && 'opacity-70')}
           />
-          <span
-            className={cn(
-              'inline-flex items-center gap-1 text-[11px] font-medium',
-              isPending ? 'text-warning-strong' : 'text-muted',
-            )}
-          >
-            {isPending && <Clock3 size={11} aria-hidden />}
-            {isRecurring && !paid ? 'Previsto' : paidLabel(type, paid)}
-          </span>
+          {!isCreditPurchase && (
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 text-[11px] font-medium',
+                isPending ? 'text-warning-strong' : 'text-muted',
+              )}
+            >
+              {isPending && <Clock3 size={11} aria-hidden />}
+              {isRecurring && !paid ? 'Previsto' : paidLabel(type, paid)}
+            </span>
+          )}
         </div>
       </button>
       {canConfirm && <ConfirmButton transaction={transaction} className="mr-2" />}
     </div>
   );
 });
+
+/** Linha "fantasma" com as mesmas medidas da TransactionRow, para carregamento. */
+export function TransactionRowSkeleton() {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl px-3 py-2.5" aria-hidden>
+      <div className="skeleton size-10 shrink-0 rounded-2xl" />
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="skeleton h-4 w-1/2" />
+        <div className="skeleton h-3 w-1/3" />
+      </div>
+      <div className="skeleton h-4 w-20" />
+    </div>
+  );
+}

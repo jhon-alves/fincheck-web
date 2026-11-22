@@ -13,6 +13,7 @@ import { HistoryChart } from './components/HistoryChart';
 import { HomeBlock } from './components/HomeBlock';
 import { KpiCard } from './components/KpiCard';
 import { UpcomingList } from './components/UpcomingList';
+import { YearSummary } from './components/YearSummary';
 
 const EMPTY_TOTALS = { income: 0, expense: 0, savings: 0, openInvoices: 0 };
 
@@ -67,6 +68,14 @@ export function HomePage() {
           isLoading={isLoading}
         />
       </section>
+
+      <HomeBlock
+        title={`Resumo de ${selectedMonth.year}`}
+        description="Janeiro a dezembro · inclui lançamentos previstos e parcelas do ano"
+        className="lg:col-span-4"
+      >
+        <YearSummary totals={summary?.yearTotals} isLoading={isLoading} />
+      </HomeBlock>
 
       <HomeBlock title="Gastos por categoria" description={monthLabel} className="lg:col-span-2">
         <CategoryDonut data={summary?.expensesByCategory ?? []} isLoading={isLoading} />
